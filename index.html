@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LingoVerse 语界 · 多语种沉浸式学习平台（离线版）</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>" />
+  <style>
+/* ============================================================
+   LingoVerse 语界 · 设计系统
+   ============================================================ */
+:root {
+  --bg: #F5F6FB;
+  --card: #FFFFFF;
+  --ink: #1E2235;
+  --muted: #6E7391;
+  --line: #E8EAF3;
+  --primary: #6C5CE7;
+  --primary-deep: #5546D6;
+  --primary-soft: #EEEBFF;
+  --grad: linear-gradient(135deg, #6C5CE7 0%, #A78BFA 100%);
+  --grad-warm: linear-gradient(135deg, #FF9A62 0%, #FF5D8F 100%);
+  --en: #4F8CFF;
+  --ja: #FF5D8F;
+  --ko: #12B886;
+  --green: #23B37D;
+  --orange: #FF9F43;
+  --red: #F0574F;
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow: 0 6px 24px rgba(80, 84, 145, 0.09);
+  --shadow-lg: 0 16px 48px rgba(80, 84, 145, 0.16);
+  font-size: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--ink);
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, textarea, select { font-family: inherit; font-size: 1rem; color: var(--ink); }
+img { max-width: 100%; }
+
+/* ---------- 启动屏 ---------- */
+.boot-splash { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.boot-logo { font-size: 64px; animation: bob 1.2s ease-in-out infinite; }
+.boot-text { color: var(--muted); letter-spacing: 2px; }
+@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+/* ---------- 顶部导航 ---------- */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(255,255,255,0.86); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-inner {
+  max-width: 1120px; margin: 0 auto; padding: 0 20px; height: 62px;
+  display: flex; align-items: center; gap: 22px;
+}
+.nav-logo { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 1.12rem; }
+.nav-logo .globe { font-size: 1.45rem; }
+.nav-logo em { font-style: normal; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nav-links { display: flex; gap: 4px; flex: 1; }
+.nav-link {
+  padding: 8px 14px; border-radius: 10px; color: var(--muted); font-weight: 600; font-size: 0.95rem;
+  transition: all .18s;
+}
+.nav-link:hover { color: var(--primary); background: var(--primary-soft); }
+.nav-link.active { color: var(--primary); background: var(--primary-soft); }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-stat { display: flex; align-items: center; gap: 5px; font-weight: 700; font-size: 0.92rem; color: var(--ink); background: #FFF6E8; padding: 6px 11px; border-radius: 99px; }
+.nav-stat.xp { background: var(--primary-soft); color: var(--primary-deep); }
+.nav-user { position: relative; }
+.nav-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--primary-soft); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; cursor: pointer; border: 2px solid transparent; transition: border-color .18s; }
+.nav-avatar:hover { border-color: var(--primary); }
+.nav-menu {
+  position: absolute; right: 0; top: 48px; width: 210px; background: var(--card);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-lg);
+  padding: 8px; display: none; flex-direction: column; gap: 2px; z-index: 60;
+}
+.nav-menu.open { display: flex; }
+.nav-menu .mi { text-align: left; padding: 10px 12px; border-radius: 9px; font-size: 0.93rem; font-weight: 600; color: var(--ink); }
+.nav-menu .mi:hover { background: var(--bg); color: var(--primary); }
+.nav-menu .mi.danger { color: var(--red); }
+.nav-menu .mhead { padding: 10px 12px 6px; font-size: 0.85rem; color: var(--muted); border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.btn-login { padding: 9px 18px; border-radius: 11px; font-weight: 700; font-size: 0.92rem; color: var(--primary-deep); }
+.btn-login:hover { background: var(--primary-soft); }
+.btn-primary { background: var(--grad); color: #fff; padding: 9px 18px; border-radius: 11px; font-weight: 700; font-size: 0.92rem; box-shadow: 0 6px 16px rgba(108,92,231,0.35); transition: transform .15s, box-shadow .15s; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 9px 22px rgba(108,92,231,0.42); }
+
+/* ---------- 布局 ---------- */
+.page { max-width: 1120px; margin: 0 auto; padding: 28px 20px 80px; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+.page-title { font-size: 1.65rem; font-weight: 800; letter-spacing: 0.5px; }
+.page-sub { color: var(--muted); margin-top: 5px; font-size: 0.95rem; }
+.card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px; }
+.grid { display: grid; gap: 18px; }
+
+/* ---------- Toast / Modal ---------- */
+#toast-box { position: fixed; top: 74px; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.toast {
+  background: rgba(30,34,53,0.94); color: #fff; padding: 11px 20px; border-radius: 12px;
+  font-size: 0.93rem; font-weight: 600; box-shadow: var(--shadow-lg);
+  animation: toastIn .25s ease, toastOut .3s ease 2.4s forwards;
+  display: flex; align-items: center; gap: 8px; max-width: 86vw;
+}
+.toast.success { background: rgba(35,179,125,0.96); }
+.toast.error { background: rgba(240,87,79,0.96); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; } }
+@keyframes toastOut { to { opacity: 0; transform: translateY(-8px); } }
+.modal-mask { position: fixed; inset: 0; background: rgba(25,28,45,0.5); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn .2s; }
+.modal { background: var(--card); border-radius: 20px; width: 100%; max-width: 520px; padding: 26px; box-shadow: var(--shadow-lg); animation: popIn .22s cubic-bezier(.2,1.4,.4,1); max-height: 88vh; overflow-y: auto; }
+.modal h3 { font-size: 1.2rem; margin-bottom: 16px; }
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes popIn { from { opacity: 0; transform: scale(.92) translateY(10px); } }
+
+/* ---------- 表单 ---------- */
+.field { margin-bottom: 15px; }
+.field label { display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 7px; color: var(--ink); }
+.field input, .field textarea, .field select {
+  width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px;
+  background: #FAFBFF; outline: none; transition: border-color .15s, box-shadow .15s;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(108,92,231,0.14); background: #fff; }
+.field textarea { resize: vertical; min-height: 110px; }
+.form-error { color: var(--red); font-size: 0.87rem; margin-top: 4px; min-height: 1.2em; }
+.btn-block { width: 100%; padding: 13px; font-size: 1rem; border-radius: 13px; }
+.btn-ghost { border: 1.5px solid var(--line); background: #fff; padding: 12px 18px; border-radius: 12px; font-weight: 700; color: var(--ink); transition: all .15s; }
+.btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+
+/* ---------- 落地页 ---------- */
+.hero { position: relative; overflow: hidden; padding: 78px 20px 64px; text-align: center; }
+.hero-blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .5; pointer-events: none; }
+.hero-blob.b1 { width: 420px; height: 420px; background: #C7BFFF; top: -160px; left: -120px; }
+.hero-blob.b2 { width: 380px; height: 380px; background: #FFD3E4; top: -60px; right: -120px; }
+.hero-blob.b3 { width: 300px; height: 300px; background: #B8F2E6; bottom: -160px; left: 40%; }
+.hero-inner { position: relative; max-width: 780px; margin: 0 auto; }
+.hero-tag { display: inline-flex; align-items: center; gap: 7px; background: #fff; border: 1px solid var(--line); padding: 7px 15px; border-radius: 99px; font-size: 0.85rem; font-weight: 700; color: var(--primary-deep); box-shadow: var(--shadow); margin-bottom: 22px; }
+.hero h1 { font-size: 2.9rem; line-height: 1.22; font-weight: 900; letter-spacing: 1px; }
+.hero h1 .hl { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero p.lead { margin: 18px auto 30px; color: var(--muted); font-size: 1.1rem; line-height: 1.8; max-width: 560px; }
+.hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.hero-cta .btn-primary { font-size: 1.02rem; padding: 14px 30px; border-radius: 14px; }
+.hero-flags { margin-top: 34px; font-size: 1.9rem; letter-spacing: 14px; }
+.feature-grid { max-width: 1020px; margin: 10px auto 0; padding: 0 20px 70px; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
+.feature { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); transition: transform .2s; }
+.feature:hover { transform: translateY(-4px); }
+.feature .ic { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 14px; background: var(--primary-soft); }
+.feature h3 { font-size: 1.02rem; margin-bottom: 8px; }
+.feature p { color: var(--muted); font-size: 0.88rem; line-height: 1.7; }
+.lang-strip { max-width: 1020px; margin: 0 auto 80px; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+.lang-card { border-radius: var(--radius); padding: 26px; color: #fff; position: relative; overflow: hidden; box-shadow: var(--shadow); }
+.lang-card .flag { font-size: 2.6rem; }
+.lang-card h3 { font-size: 1.3rem; margin: 10px 0 4px; }
+.lang-card .en { opacity: .85; font-size: 0.9rem; font-weight: 600; }
+.lang-card p { margin-top: 12px; font-size: 0.9rem; line-height: 1.7; opacity: .92; }
+.lang-card .courses { position: absolute; top: 22px; right: 22px; background: rgba(255,255,255,0.22); padding: 5px 12px; border-radius: 99px; font-size: 0.8rem; font-weight: 700; }
+
+/* ---------- 仪表盘 ---------- */
+.dash-welcome { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; margin-bottom: 22px; }
+.dash-hi { font-size: 1.6rem; font-weight: 800; }
+.dash-hi span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.dash-date { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.stat-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px; display: flex; align-items: center; gap: 13px; }
+.stat-card .ic { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+.stat-card .num { font-size: 1.3rem; font-weight: 800; line-height: 1.1; }
+.stat-card .lbl { color: var(--muted); font-size: 0.8rem; margin-top: 3px; }
+.dash-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px; align-items: start; }
+.rec-list { display: flex; flex-direction: column; gap: 12px; }
+.rec-item {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px;
+  border: 1.5px solid var(--line); transition: all .18s; cursor: pointer; background: #fff;
+}
+.rec-item:hover { border-color: var(--primary); box-shadow: var(--shadow); transform: translateX(3px); }
+.rec-item .ric { width: 46px; height: 46px; border-radius: 13px; background: var(--primary-soft); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+.rec-item .rt { font-weight: 700; font-size: 0.97rem; }
+.rec-item .rd { color: var(--muted); font-size: 0.84rem; margin-top: 3px; line-height: 1.5; }
+.rec-item .rr { font-size: 0.78rem; color: var(--primary); font-weight: 700; margin-top: 5px; }
+.rec-item .go { margin-left: auto; color: var(--muted); font-size: 1.1rem; }
+.goal-ring-box { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px 0 4px; }
+.ring-num { font-size: 1.75rem; font-weight: 800; }
+.ring-lbl { color: var(--muted); font-size: 0.85rem; }
+.week-chart { margin-top: 6px; }
+
+/* ---------- 课程页 ---------- */
+.lang-tabs { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+.lang-tab {
+  display: flex; align-items: center; gap: 9px; padding: 10px 18px; border-radius: 13px;
+  background: #fff; border: 1.5px solid var(--line); font-weight: 700; font-size: 0.95rem; transition: all .18s;
+}
+.lang-tab:hover { border-color: var(--primary); }
+.lang-tab.active { color: #fff; border-color: transparent; box-shadow: var(--shadow); }
+.level-block { margin-bottom: 30px; }
+.level-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.level-badge { background: var(--grad); color: #fff; font-weight: 800; padding: 5px 13px; border-radius: 9px; font-size: 0.85rem; }
+.level-name { font-weight: 800; font-size: 1.05rem; }
+.level-desc { color: var(--muted); font-size: 0.86rem; }
+.course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.course-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; transition: transform .2s, box-shadow .2s; cursor: pointer; }
+.course-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.course-card .cc-top { padding: 20px 20px 14px; display: flex; gap: 14px; align-items: flex-start; }
+.course-card .cc-icon { width: 52px; height: 52px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
+.course-card h3 { font-size: 1.03rem; line-height: 1.4; }
+.course-card .cc-sub { color: var(--muted); font-size: 0.84rem; margin-top: 5px; line-height: 1.55; }
+.course-card .cc-bottom { padding: 0 20px 18px; }
+.cc-meta { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--muted); margin-bottom: 8px; }
+.progress-bar { height: 7px; background: var(--bg); border-radius: 99px; overflow: hidden; }
+.progress-bar > div { height: 100%; border-radius: 99px; background: var(--grad); transition: width .5s ease; }
+.progress-bar.done > div { background: linear-gradient(90deg, #23B37D, #4ADE9C); }
+
+/* 课程详情 */
+.course-hero { border-radius: 22px; padding: 30px; color: #fff; margin-bottom: 24px; position: relative; overflow: hidden; box-shadow: var(--shadow-lg); }
+.course-hero .flag { font-size: 2rem; }
+.course-hero h2 { font-size: 1.7rem; margin-top: 8px; }
+.course-hero p { opacity: .92; margin-top: 8px; line-height: 1.7; max-width: 620px; }
+.course-hero .lvl { position: absolute; top: 26px; right: 26px; background: rgba(255,255,255,0.22); padding: 7px 15px; border-radius: 99px; font-weight: 800; font-size: 0.9rem; }
+.lesson-list { display: flex; flex-direction: column; gap: 12px; }
+.lesson-row {
+  display: flex; align-items: center; gap: 16px; background: var(--card); border-radius: 16px;
+  padding: 16px 20px; box-shadow: var(--shadow); transition: all .18s; cursor: pointer; border: 1.5px solid transparent;
+}
+.lesson-row:hover { transform: translateX(4px); border-color: var(--primary); }
+.lesson-row .l-ic { width: 50px; height: 50px; border-radius: 14px; background: var(--primary-soft); display: flex; align-items: center; justify-content: center; font-size: 1.45rem; flex-shrink: 0; }
+.lesson-row .l-t { font-weight: 700; font-size: 1rem; }
+.lesson-row .l-s { color: var(--muted); font-size: 0.84rem; margin-top: 4px; }
+.lesson-row .l-score { font-weight: 800; font-size: 0.9rem; padding: 5px 11px; border-radius: 99px; background: #E9FBF3; color: var(--green); }
+.lesson-row .l-min { color: var(--muted); font-size: 0.82rem; }
+.lesson-row.locked { opacity: .55; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-weight: 700; font-size: 0.9rem; margin-bottom: 16px; }
+.back-link:hover { color: var(--primary); }
+
+/* ---------- 课程播放器 ---------- */
+.player-wrap { max-width: 780px; margin: 0 auto; }
+.player-top { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.player-top .back { width: 40px; height: 40px; border-radius: 12px; background: #fff; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.player-title { flex: 1; }
+.player-title .pt1 { font-weight: 800; font-size: 1.1rem; }
+.player-title .pt2 { color: var(--muted); font-size: 0.83rem; margin-top: 2px; }
+.phase-bar { display: flex; gap: 8px; margin-bottom: 22px; }
+.phase-chip { flex: 1; text-align: center; padding: 9px 4px; border-radius: 11px; font-size: 0.8rem; font-weight: 700; color: var(--muted); background: #fff; border: 1.5px solid var(--line); transition: all .25s; white-space: nowrap; overflow: hidden; }
+.phase-chip.active { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 6px 16px rgba(108,92,231,0.3); }
+.phase-chip.done { color: var(--green); border-color: #BDEBD8; background: #F0FBF6; }
+.phase-card { background: var(--card); border-radius: 22px; box-shadow: var(--shadow-lg); padding: 30px; min-height: 380px; display: flex; flex-direction: column; }
+.phase-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.phase-tag { font-size: 0.8rem; font-weight: 800; color: var(--primary); background: var(--primary-soft); padding: 5px 12px; border-radius: 99px; letter-spacing: 1px; }
+.phase-count { color: var(--muted); font-size: 0.85rem; font-weight: 700; }
+.phase-title { font-size: 1.3rem; font-weight: 800; margin: 10px 0 20px; }
+.phase-body { flex: 1; }
+.phase-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; gap: 12px; }
+.phase-progress { height: 6px; background: var(--bg); border-radius: 99px; overflow: hidden; flex: 1; }
+.phase-progress > div { height: 100%; background: var(--grad); border-radius: 99px; transition: width .3s; }
+.btn-next { background: var(--grad); color: #fff; font-weight: 800; padding: 12px 26px; border-radius: 13px; font-size: 0.97rem; box-shadow: 0 6px 16px rgba(108,92,231,0.35); transition: transform .15s; }
+.btn-next:hover { transform: translateY(-1px); }
+.btn-next:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* 单词卡 */
+.flashcard { position: relative; height: 240px; cursor: pointer; perspective: 1200px; }
+.flashcard .fc-inner { position: absolute; inset: 0; transition: transform .5s cubic-bezier(.4,.1,.2,1.2); transform-style: preserve-3d; }
+.flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 20px; text-align: center; }
+.fc-front { background: var(--grad); color: #fff; box-shadow: 0 14px 34px rgba(108,92,231,0.4); }
+.fc-front .term { font-size: 2.1rem; font-weight: 800; letter-spacing: 1px; }
+.fc-front .reading { opacity: .85; font-size: 1rem; }
+.fc-back { background: #fff; border: 2px solid var(--primary-soft); transform: rotateY(180deg); box-shadow: var(--shadow); }
+.fc-back .trans { font-size: 1.7rem; font-weight: 800; color: var(--primary-deep); }
+.fc-back .example { color: var(--muted); font-size: 0.95rem; margin-top: 10px; line-height: 1.7; }
+.fc-hint { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 14px; }
+.fc-audio { margin-top: 8px; }
+.speaker-btn { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.25); color: #fff; font-size: 1.2rem; display: inline-flex; align-items: center; justify-content: center; }
+.speaker-btn.dark { background: var(--primary-soft); color: var(--primary); }
+.speaker-btn:hover { transform: scale(1.08); }
+
+/* 练习题 */
+.quiz-q { font-size: 1.15rem; font-weight: 700; line-height: 1.7; margin-bottom: 18px; }
+.quiz-opts { display: flex; flex-direction: column; gap: 11px; }
+.quiz-opt {
+  text-align: left; padding: 14px 18px; border-radius: 14px; border: 2px solid var(--line);
+  background: #FAFBFF; font-size: 1rem; font-weight: 600; transition: all .15s; display: flex; align-items: center; gap: 12px;
+}
+.quiz-opt .key { width: 28px; height: 28px; border-radius: 9px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 800; color: var(--muted); flex-shrink: 0; }
+.quiz-opt:hover { border-color: var(--primary); background: #fff; }
+.quiz-opt.sel { border-color: var(--primary); background: var(--primary-soft); }
+.quiz-opt.right { border-color: var(--green); background: #F0FBF6; }
+.quiz-opt.right .key { background: var(--green); color: #fff; }
+.quiz-opt.wrong { border-color: var(--red); background: #FEF1F0; }
+.quiz-opt.wrong .key { background: var(--red); color: #fff; }
+.quiz-tip { margin-top: 14px; padding: 12px 15px; border-radius: 12px; background: #FFF9EC; color: #8A6D1F; font-size: 0.88rem; line-height: 1.6; animation: fadeIn .25s; }
+
+/* 听力 */
+.listen-box { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 12px 0; }
+.listen-sphere { width: 108px; height: 108px; border-radius: 50%; background: var(--grad); color: #fff; font-size: 2.4rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 14px 34px rgba(108,92,231,0.4); transition: transform .15s; }
+.listen-sphere:hover { transform: scale(1.05); }
+.listen-sphere.playing { animation: pulse 1.1s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(108,92,231,0.45); } 50% { box-shadow: 0 0 0 22px rgba(108,92,231,0); } }
+.listen-hint { color: var(--muted); font-size: 0.9rem; }
+.type-input { width: 100%; max-width: 460px; padding: 14px 18px; font-size: 1.15rem; text-align: center; border: 2px solid var(--line); border-radius: 14px; outline: none; }
+.type-input:focus { border-color: var(--primary); }
+.reveal-sent { text-align: center; font-size: 1.2rem; font-weight: 700; line-height: 1.7; animation: fadeIn .3s; }
+.reveal-zh { text-align: center; color: var(--muted); font-size: 0.92rem; margin-top: 8px; }
+
+/* 口语 */
+.speak-target { background: linear-gradient(135deg, #FFF0F5, #EFEAFF); border-radius: 18px; padding: 24px; text-align: center; margin-bottom: 20px; }
+.speak-target .st-main { font-size: 1.55rem; font-weight: 800; line-height: 1.6; }
+.speak-target .st-zh { color: var(--muted); margin-top: 8px; font-size: 0.95rem; }
+.speak-target .st-hint { margin-top: 10px; font-size: 0.85rem; color: var(--primary-deep); background: rgba(255,255,255,0.7); display: inline-block; padding: 5px 13px; border-radius: 99px; }
+.speak-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-mic { background: var(--grad-warm); color: #fff; font-weight: 800; font-size: 1rem; padding: 14px 30px; border-radius: 99px; box-shadow: 0 8px 22px rgba(255,93,143,0.4); transition: all .2s; display: inline-flex; align-items: center; gap: 9px; }
+.btn-mic:hover { transform: translateY(-2px); }
+.btn-mic.rec { animation: micPulse 1.2s ease-in-out infinite; }
+@keyframes micPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,93,143,0.5); } 50% { box-shadow: 0 0 0 18px rgba(255,93,143,0); } }
+.mic-status { text-align: center; color: var(--muted); font-size: 0.9rem; min-height: 1.4em; margin-top: 14px; }
+.mic-heard { text-align: center; font-size: 1.1rem; font-weight: 700; color: var(--primary-deep); margin-top: 6px; min-height: 1.5em; }
+.self-rate { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.self-rate button { padding: 10px 16px; border-radius: 11px; border: 1.5px solid var(--line); background: #fff; font-weight: 700; font-size: 0.88rem; }
+.self-rate button:hover { border-color: var(--primary); color: var(--primary); }
+
+/* 完成页 */
+.done-hero { text-align: center; padding: 8px 0 4px; }
+.done-hero .dh-ic { font-size: 3.4rem; animation: bob 1.6s ease-in-out infinite; }
+.done-hero h2 { font-size: 1.6rem; margin-top: 10px; }
+.done-hero p { color: var(--muted); margin-top: 8px; }
+.score-rings { display: flex; justify-content: center; gap: 26px; margin: 24px 0; flex-wrap: wrap; }
+.score-ring { text-align: center; }
+.score-ring .lbl { font-size: 0.82rem; color: var(--muted); font-weight: 700; margin-top: 6px; }
+.xp-banner { display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, #FFF3E0, #FFE6EE); padding: 14px; border-radius: 14px; font-weight: 800; color: #B4531B; font-size: 1.05rem; }
+.ach-pop { display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #EEEBFF, #FDF0FF); border: 1.5px solid #DCD3FF; padding: 13px 16px; border-radius: 14px; margin-top: 14px; animation: popIn .4s cubic-bezier(.2,1.4,.4,1); }
+.ach-pop .ap-ic { font-size: 1.8rem; }
+.ach-pop .ap-t { font-weight: 800; }
+.ach-pop .ap-d { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+
+/* ---------- 进度页 ---------- */
+.progress-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; align-items: start; }
+.skill-bars { display: flex; flex-direction: column; gap: 14px; }
+.skill-bar .sb-head { display: flex; justify-content: space-between; font-size: 0.88rem; font-weight: 700; margin-bottom: 6px; }
+.skill-bar .sb-head span:last-child { color: var(--muted); }
+.ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 13px; }
+.ach-card { background: var(--card); border-radius: 16px; padding: 17px 14px; text-align: center; box-shadow: var(--shadow); border: 1.5px solid transparent; transition: all .2s; }
+.ach-card.unlocked { border-color: #FFD98E; background: linear-gradient(160deg, #FFFBF2, #FFF6E4); }
+.ach-card .a-ic { font-size: 2rem; filter: grayscale(1); opacity: .45; }
+.ach-card.unlocked .a-ic { filter: none; opacity: 1; }
+.ach-card .a-name { font-weight: 800; font-size: 0.9rem; margin-top: 8px; }
+.ach-card .a-desc { color: var(--muted); font-size: 0.76rem; margin-top: 4px; line-height: 1.5; }
+.ach-card .a-date { font-size: 0.72rem; color: var(--orange); font-weight: 700; margin-top: 5px; }
+.lang-progress-row { display: flex; align-items: center; gap: 14px; padding: 13px 0; border-bottom: 1px dashed var(--line); }
+.lang-progress-row:last-child { border-bottom: none; }
+.lpr-flag { font-size: 1.5rem; }
+.lpr-body { flex: 1; }
+.lpr-head { display: flex; justify-content: space-between; font-size: 0.88rem; font-weight: 700; margin-bottom: 6px; }
+.lpr-head span:last-child { color: var(--muted); font-weight: 600; }
+
+/* ---------- 社区 ---------- */
+.community-grid { display: grid; grid-template-columns: 1fr 300px; gap: 18px; align-items: start; }
+.post-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 15px; }
+.post-head { display: flex; align-items: center; gap: 11px; margin-bottom: 12px; }
+.post-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-soft); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+.post-author { font-weight: 700; font-size: 0.92rem; }
+.post-time { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+.post-lang { margin-left: auto; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 99px; background: var(--bg); color: var(--muted); }
+.post-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; line-height: 1.5; }
+.post-content { color: #454A63; font-size: 0.93rem; line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
+.post-actions { display: flex; gap: 18px; margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--line); }
+.post-actions button { display: flex; align-items: center; gap: 6px; color: var(--muted); font-weight: 700; font-size: 0.87rem; transition: color .15s; }
+.post-actions button:hover { color: var(--primary); }
+.post-actions button.liked { color: var(--red); }
+.comments { margin-top: 13px; display: flex; flex-direction: column; gap: 10px; }
+.comment { background: var(--bg); border-radius: 12px; padding: 11px 14px; }
+.comment .c-head { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; display: flex; gap: 8px; }
+.comment .c-head b { color: var(--ink); }
+.comment .c-body { font-size: 0.89rem; line-height: 1.65; }
+.comment-input { display: flex; gap: 9px; margin-top: 12px; }
+.comment-input input { flex: 1; padding: 10px 14px; border: 1.5px solid var(--line); border-radius: 10px; outline: none; background: #FAFBFF; }
+.comment-input input:focus { border-color: var(--primary); }
+.community-side .side-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 15px; }
+.side-card h4 { font-size: 0.95rem; margin-bottom: 12px; }
+.rank-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 0.88rem; font-weight: 600; }
+.rank-row .rk { width: 22px; height: 22px; border-radius: 7px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; color: var(--muted); }
+.rank-row:nth-child(1) .rk { background: #FFE9C7; color: #B4531B; }
+.rank-row:nth-child(2) .rk { background: #EDEDF2; color: #62667E; }
+.rank-row:nth-child(3) .rk { background: #FFE3D6; color: #B4531B; }
+.filter-chips { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.chip { padding: 8px 15px; border-radius: 99px; background: #fff; border: 1.5px solid var(--line); font-weight: 700; font-size: 0.85rem; color: var(--muted); transition: all .15s; }
+.chip:hover { border-color: var(--primary); color: var(--primary); }
+.chip.active { background: var(--grad); color: #fff; border-color: transparent; }
+
+/* ---------- 个人页 ---------- */
+.profile-head { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; }
+.profile-avatar { width: 84px; height: 84px; border-radius: 50%; background: var(--grad); display: flex; align-items: center; justify-content: center; font-size: 2.6rem; box-shadow: 0 10px 26px rgba(108,92,231,0.4); }
+.profile-name { font-size: 1.5rem; font-weight: 800; }
+.profile-mail { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+.avatar-picker { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.avatar-picker button { width: 46px; height: 46px; border-radius: 50%; font-size: 1.4rem; background: var(--bg); border: 2px solid transparent; transition: all .15s; }
+.avatar-picker button:hover { transform: scale(1.1); }
+.avatar-picker button.sel { border-color: var(--primary); background: var(--primary-soft); }
+.goal-picker { display: flex; gap: 10px; }
+.goal-picker button { flex: 1; padding: 13px; border-radius: 13px; border: 2px solid var(--line); background: #fff; font-weight: 800; transition: all .15s; }
+.goal-picker button.sel { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); }
+.settings-row { margin-bottom: 22px; }
+.settings-row h4 { margin-bottom: 10px; font-size: 0.98rem; }
+
+/* ---------- 空状态 / 动画 ---------- */
+.empty { text-align: center; padding: 50px 20px; color: var(--muted); }
+.empty .e-ic { font-size: 3rem; margin-bottom: 12px; }
+.fade-in { animation: fadeUp .35s ease both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.spin { display: inline-block; width: 22px; height: 22px; border: 3px solid var(--primary-soft); border-top-color: var(--primary); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 900px) {
+  .dash-grid, .progress-grid, .community-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 2.1rem; }
+  .nav-links { display: none; }
+}
+@media (max-width: 560px) {
+  .phase-card { padding: 20px 16px; min-height: 340px; }
+  .stat-row { grid-template-columns: 1fr 1fr; }
+  .page { padding: 20px 14px 70px; }
+  .hero { padding: 54px 16px 44px; }
+}
+
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="boot-splash">
+      <div class="boot-logo">🌍</div>
+      <div class="boot-text">LingoVerse 语界加载中…</div>
+    </div>
+  </div>
+  <div id="toast-box"></div>
+  <div id="modal-root"></div>
+
+  <script>window.__LV_SEED__ = {"languages":[{"code":"en","name":"英语","nativeName":"English","flag":"🇬🇧","color":"#4F8CFF","speech":"en-US","tagline":"全球通用语，从问候到职场"},{"code":"ja","name":"日语","nativeName":"日本語","flag":"🇯🇵","color":"#FF5D8F","speech":"ja-JP","tagline":"五十音起步，走进动漫与职场"},{"code":"ko","name":"韩语","nativeName":"한국어","flag":"🇰🇷","color":"#12B886","speech":"ko-KR","tagline":" Hangul 一周入门，追剧无压力"}],"levels":{"A1":{"name":"入门 A1","desc":"零基础起步，掌握核心问候与生存表达"},"A2":{"name":"初级 A2","desc":"应对旅行与日常场景，建立表达框架"},"B1":{"name":"中级 B1","desc":"表达观点、应对职场，走向流利"}},"achievements":[{"id":"first_lesson","icon":"🌱","name":"初出茅庐","desc":"完成第一节课程"},{"id":"lessons_5","icon":"📚","name":"渐入佳境","desc":"累计完成 5 节课"},{"id":"lessons_15","icon":"🎓","name":"学而不厌","desc":"累计完成 15 节课"},{"id":"xp_500","icon":"⭐","name":"百级新星","desc":"累计获得 500 XP"},{"id":"xp_2000","icon":"👑","name":"语言大师","desc":"累计获得 2000 XP"},{"id":"streak_3","icon":"🔥","name":"三日之约","desc":"连续学习 3 天"},{"id":"streak_7","icon":"🌋","name":"一周不断","desc":"连续学习 7 天"},{"id":"vocab_50","icon":"🧠","name":"词汇收藏家","desc":"学会 50 个单词"},{"id":"perfect_lesson","icon":"💎","name":"满分学员","desc":"单节课四项技能均达 90 分"},{"id":"speaker","icon":"🎙️","name":"开口达人","desc":"口语跟读 3 次达到 90 分"},{"id":"listener","icon":"👂","name":"顺风耳","desc":"听力训练 3 次达到 90 分"},{"id":"social_1","icon":"💬","name":"初来乍到","desc":"在社区发布第一个帖子"}],"courses":[{"id":"en-a1-c1","lang":"en","level":"A1","icon":"🚀","title":"零基础起航 · 问候与介绍","subtitle":"从第一句 Hello 开始，建立开口的勇气","lessons":[{"id":"en-a1-c1-l1","title":"Hello, World!","subtitle":"最常用的问候语","icon":"👋","minutes":12,"vocab":[{"t":"hello","z":"你好","ex":"Hello! Nice to meet you.","ext":"你好！很高兴认识你。"},{"t":"hi","z":"嗨（更随意）","ex":"Hi, Tom! How are you?","ext":"嗨，汤姆！你好吗？"},{"t":"good morning","z":"早上好","ex":"Good morning, class!","ext":"同学们，早上好！"},{"t":"good night","z":"晚安","ex":"Good night, see you tomorrow.","ext":"晚安，明天见。"},{"t":"thank you","z":"谢谢你","ex":"Thank you for your help.","ext":"谢谢你的帮助。"},{"t":"goodbye","z":"再见","ex":"Goodbye! Have a nice day.","ext":"再见！祝你今天愉快。"}],"grammar":{"t":"be 动词：am / is / are","exp":"英语的\"是\"有三种形态，随主语变化：\n· I am（我是）→ I am a student.\n· He / She / It is（他/她/它是）→ She is my teacher.\n· You / We / They are（你/我们/他们是）→ They are friends.\n口诀：我用 am，你用 are，is 跟着他她它。","exs":[{"q":"I ___ a new student.","o":["am","is","are"],"a":0,"tip":"第一人称 I 永远搭配 am"},{"q":"She ___ my English teacher.","o":["am","is","are"],"a":1,"tip":"She 是第三人称单数，用 is"},{"q":"They ___ from China.","o":["am","is","are"],"a":2,"tip":"They 是复数，用 are"},{"q":"___ you ready?","o":["Am","Is","Are"],"a":2,"tip":"主语 you 搭配 Are"}]},"listening":[{"s":"Hello! Nice to meet you.","z":"你好！很高兴认识你。","m":"choice"},{"s":"Good morning, teacher.","z":"老师，早上好。","m":"choice"},{"s":"Good night. See you tomorrow.","z":"晚安，明天见。","m":"choice"}],"speaking":[{"s":"Hello! Nice to meet you.","z":"你好！很高兴认识你。","h":"注意 nice 的 /aɪ/ 双元音要饱满"},{"s":"Good morning!","z":"早上好！","h":"morning 重音在第一个音节 MOR-ning"},{"s":"Thank you very much.","z":"非常感谢。","h":"th 咬舌音，舌尖轻触上齿"}]},{"id":"en-a1-c1-l2","title":"My Name Is...","subtitle":"自我介绍的核心句型","icon":"🙋","minutes":12,"vocab":[{"t":"name","z":"名字","ex":"My name is Lily.","ext":"我的名字叫莉莉。"},{"t":"from","z":"来自","ex":"I am from Beijing.","ext":"我来自北京。"},{"t":"student","z":"学生","ex":"He is a student.","ext":"他是一名学生。"},{"t":"teacher","z":"老师","ex":"Ms. Wang is our teacher.","ext":"王老师是我们的老师。"},{"t":"year old","z":"……岁","ex":"I am twenty years old.","ext":"我二十岁。"},{"t":"friend","z":"朋友","ex":"This is my friend Jack.","ext":"这是我的朋友杰克。"}],"grammar":{"t":"特殊疑问句：What / Where / How old","exp":"疑问词 + 一般疑问句语序（be 提前）：\n· What is your name? → My name is Lily.\n· Where are you from? → I am from Beijing.\n· How old are you? → I am twenty.\n注意：答句中 your 变 my，you 变 I。","exs":[{"q":"___ is your name?","o":["What","Where","How"],"a":0,"tip":"问\"什么\"用 What"},{"q":"___ are you from?","o":["What","Where","Who"],"a":1,"tip":"问\"哪里\"用 Where"},{"q":"— How old are you? — I ___ fifteen.","o":["am","is","are"],"a":0,"tip":"答句主语是 I，用 am"},{"q":"— What is her name? — ___ name is Anna.","o":["His","Her","My"],"a":1,"tip":"her 对应女性\"她的\""}]},"listening":[{"s":"My name is Lily.","z":"我的名字叫莉莉。","m":"choice"},{"s":"I am from Beijing.","z":"我来自北京。","m":"choice"},{"s":"This is my friend Jack.","z":"这是我的朋友杰克。","m":"choice"}],"speaking":[{"s":"My name is Lily.","z":"我的名字叫莉莉。","h":"把名字换成你自己的试试看"},{"s":"I am from China.","z":"我来自中国。","h":"from 不要读成\"弗朗\"，/frɒm/ 短促"},{"s":"Nice to meet you, too.","z":"我也很高兴认识你。","h":"too 与 two 同音"}]},{"id":"en-a1-c1-l3","title":"Numbers & Time","subtitle":"数字与时间的说法","icon":"⏰","minutes":14,"vocab":[{"t":"one / two / three","z":"一 / 二 / 三","ex":"I have three books.","ext":"我有三本书。"},{"t":"eleven / twelve","z":"十一 / 十二","ex":"The class starts at twelve.","ext":"课程十二点开始。"},{"t":"o'clock","z":"……点钟","ex":"It is nine o'clock.","ext":"现在九点整。"},{"t":"half past","z":"……点半","ex":"It is half past six.","ext":"现在六点半。"},{"t":"today","z":"今天","ex":"What day is it today?","ext":"今天星期几？"},{"t":"time","z":"时间","ex":"What time is it?","ext":"现在几点？"}],"grammar":{"t":"问时间与表达时间","exp":"问：What time is it?（现在几点？）\n整点：It is + 数字 + o'clock. → It is seven o'clock.\n半点：It is half past + 数字. → It is half past seven.\n注意 o'clock 只用于整点，半点要用 half past。","exs":[{"q":"— ___ time is it? — It is eight o'clock.","o":["What","How","Where"],"a":0,"tip":"固定搭配 What time"},{"q":"It is half ___ nine.","o":["past","to","at"],"a":0,"tip":"half past + 点数 = 几点半"},{"q":"The movie starts ___ seven o'clock.","o":["at","on","in"],"a":0,"tip":"具体钟点用介词 at"},{"q":"It is 7:30. = It is half ___ seven.","o":["past","to","after"],"a":0,"tip":"7:30 即七点半"}]},"listening":[{"s":"What time is it?","z":"现在几点？","m":"choice"},{"s":"It is nine o'clock.","z":"现在九点整。","m":"choice"},{"s":"It is half past six.","z":"现在六点半。","m":"choice"}],"speaking":[{"s":"What time is it?","z":"现在几点？","h":"time 的 /aɪ/ 要拉长"},{"s":"It is eight o'clock.","z":"现在八点。","h":"o'clock 读作 /əˌklɒk/"},{"s":"See you at three.","z":"三点见。","h":"three 的 th 要咬舌"}]}]},{"id":"en-a1-c2","lang":"en","level":"A1","icon":"🏠","title":"日常生活 · 每天都在用","subtitle":"吃喝、家人、购物，把英语带回生活","lessons":[{"id":"en-a1-c2-l1","title":"Food & Drinks","subtitle":"食物与饮料","icon":"🍎","minutes":12,"vocab":[{"t":"rice","z":"米饭","ex":"I eat rice every day.","ext":"我每天吃米饭。"},{"t":"bread","z":"面包","ex":"She buys bread in the morning.","ext":"她早上买面包。"},{"t":"egg","z":"鸡蛋","ex":"I want an egg, please.","ext":"请给我一个鸡蛋。"},{"t":"water","z":"水","ex":"A glass of water, please.","ext":"请来一杯水。"},{"t":"coffee","z":"咖啡","ex":"Dad drinks coffee at night.","ext":"爸爸晚上喝咖啡。"},{"t":"apple","z":"苹果","ex":"This apple is sweet.","ext":"这个苹果很甜。"}],"grammar":{"t":"I like... / I would like...","exp":"表达喜好：I like + 名词 → I like coffee.\n否定与提问：I do not (don't) like... / Do you like...?\n礼貌点单：I would like... = I'd like... → I'd like a cup of tea.\nlike 后接名词或动名词（like swimming）。","exs":[{"q":"I ___ apples very much.","o":["like","likes","liking"],"a":0,"tip":"主语 I 后动词用原形"},{"q":"___ you like fish?","o":["Do","Does","Are"],"a":0,"tip":"主语 you 用 Do 提问"},{"q":"I'd ___ a cup of tea, please.","o":["want","like","have"],"a":1,"tip":"would like 是礼貌表达"},{"q":"She ___ like spicy food.","o":["do not","doesn't","don't"],"a":1,"tip":"第三人称单数否定用 doesn't"}]},"listening":[{"s":"I eat rice every day.","z":"我每天吃米饭。","m":"choice"},{"s":"A glass of water, please.","z":"请来一杯水。","m":"choice"},{"s":"This apple is sweet.","z":"这个苹果很甜。","m":"choice"}],"speaking":[{"s":"I like coffee very much.","z":"我非常喜欢咖啡。","h":"like 的 /aɪ/ 清晰，very 重读"},{"s":"A glass of water, please.","z":"请来一杯水。","h":"water 美音读 /ˈwɔːt̬ər/"},{"s":"I would like an apple.","z":"我想要一个苹果。","h":"an 后接元音开头的名词"}]},{"id":"en-a1-c2-l2","title":"Family & Friends","subtitle":"家人与朋友","icon":"👨‍👩‍👧","minutes":12,"vocab":[{"t":"mother","z":"妈妈","ex":"My mother is a doctor.","ext":"我妈妈是医生。"},{"t":"father","z":"爸爸","ex":"His father works in a bank.","ext":"他爸爸在银行工作。"},{"t":"sister","z":"姐姐/妹妹","ex":"My sister loves music.","ext":"我姐姐热爱音乐。"},{"t":"brother","z":"哥哥/弟弟","ex":"I have two brothers.","ext":"我有两个兄弟。"},{"t":"family","z":"家庭","ex":"We are a big family.","ext":"我们是个大家庭。"},{"t":"cute","z":"可爱的","ex":"Her baby is so cute.","ext":"她的宝宝真可爱。"}],"grammar":{"t":"形容词性物主代词：my / your / his / her","exp":"放在名词前表示\"谁的\"：\nmy（我的）your（你的）his（他的）her（她的）its（它的）our（我们的）their（他们的）\n→ This is my brother. / Her name is Kate.\n注意 his 指男、her 指女，不要混用。","exs":[{"q":"This is ___ sister. We look the same.","o":["my","me","I"],"a":0,"tip":"名词前要用形容词性物主代词"},{"q":"Tom is here. ___ bag is new.","o":["His","Her","Your"],"a":0,"tip":"Tom 是男性，用 His"},{"q":"Kate loves ___ family.","o":["his","her","your"],"a":1,"tip":"Kate 是女性，用 her"},{"q":"We love ___ school.","o":["our","us","we"],"a":0,"tip":"\"我们的\"用 our"}]},"listening":[{"s":"My mother is a doctor.","z":"我妈妈是医生。","m":"choice"},{"s":"I have two brothers.","z":"我有两个兄弟。","m":"choice"},{"s":"Her baby is so cute.","z":"她的宝宝真可爱。","m":"choice"}],"speaking":[{"s":"This is my family.","z":"这是我的家庭。","h":"family 重音在首音节 FAM-ily"},{"s":"My sister loves music.","z":"我姐姐热爱音乐。","h":"loves 结尾的 /z/ 要轻"},{"s":"We are a happy family.","z":"我们是幸福的一家人。","h":"注意 happy 的 /æ/ 大口型"}]},{"id":"en-a1-c2-l3","title":"Going Shopping","subtitle":"购物与砍价","icon":"🛍️","minutes":13,"vocab":[{"t":"price","z":"价格","ex":"What is the price?","ext":"价格是多少？"},{"t":"dollar","z":"美元","ex":"It costs ten dollars.","ext":"它值十美元。"},{"t":"expensive","z":"昂贵的","ex":"This bag is too expensive.","ext":"这个包太贵了。"},{"t":"cheap","z":"便宜的","ex":"The book is very cheap.","ext":"这本书很便宜。"},{"t":"buy","z":"买","ex":"I want to buy a gift.","ext":"我想买个礼物。"},{"t":"size","z":"尺码","ex":"Do you have a big size?","ext":"你们有大码吗？"}],"grammar":{"t":"How much 问价格与数量","exp":"问不可数名词/价格：How much is this bag? → It is ten dollars.\n问可数名词数量：How many books do you have?\n记忆点：How much + 不可数，How many + 可数复数。","exs":[{"q":"___ is this T-shirt?","o":["How much","How many","What many"],"a":0,"tip":"问价格用 How much"},{"q":"___ apples do you want?","o":["How much","How many","How long"],"a":1,"tip":"apples 可数复数用 How many"},{"q":"— How much are the shoes? — ___ eighty dollars.","o":["It is","They are","There are"],"a":1,"tip":"复数主语用 They are"},{"q":"The jacket is too ___ for me.","o":["expensive","cheap much","price"],"a":0,"tip":"too + 形容词"}]},"listening":[{"s":"How much is this bag?","z":"这个包多少钱？","m":"choice"},{"s":"It costs ten dollars.","z":"它值十美元。","m":"choice"},{"s":"This one is too expensive.","z":"这个太贵了。","m":"choice"}],"speaking":[{"s":"How much is it?","z":"这个多少钱？","h":"much 的 /ʌ/ 短促有力"},{"s":"It is too expensive.","z":"太贵了。","h":"expensive 重音在 ex-PEN-sive 中段"},{"s":"Can I try it on?","z":"我能试穿吗？","h":"try it on 连读成 try-i-ton"}]}]},{"id":"en-a2-c1","lang":"en","level":"A2","icon":"✈️","title":"旅行出发 · Travel Time","subtitle":"机场、酒店、问路，玩转海外自由行","lessons":[{"id":"en-a2-c1-l1","title":"At the Airport","subtitle":"机场通关全流程","icon":"🛫","minutes":15,"vocab":[{"t":"ticket","z":"机票/票","ex":"Here is my ticket.","ext":"这是我的机票。"},{"t":"passport","z":"护照","ex":"May I see your passport?","ext":"我可以看您的护照吗？"},{"t":"flight","z":"航班","ex":"Flight CA123 is boarding now.","ext":"CA123 航班正在登机。"},{"t":"luggage","z":"行李","ex":"I have two pieces of luggage.","ext":"我有两件行李。"},{"t":"gate","z":"登机口","ex":"The gate number is B12.","ext":"登机口是 B12。"},{"t":"boarding","z":"登机","ex":"Boarding starts at 9:30.","ext":"9:30 开始登机。"}],"grammar":{"t":"情态动词 May / Can 表请求","exp":"礼貌请求：May I + 动词原形...?（正式）→ May I see your passport?\n一般请求：Can I / Could I + 动词原形...? → Could I have a window seat?\n回答：Sure. / Of course. / Sorry, you can't.","exs":[{"q":"___ I have some water, please?","o":["May","Must","Should"],"a":0,"tip":"May I 更礼貌"},{"q":"___ you help me with my luggage?","o":["Can","Must","Am"],"a":0,"tip":"请别人帮忙用 Can you..."},{"q":"May I board now? — ___, here is your ticket.","o":["Sure","No way","Never"],"a":0,"tip":"肯定回答常用 Sure"},{"q":"We ___ show our passports before boarding.","o":["must","may","could"],"a":0,"tip":"\"必须\"用 must"}]},"listening":[{"s":"May I see your passport?","z":"我可以看您的护照吗？","m":"type"},{"s":"Flight CA123 is boarding now.","z":"CA123 航班正在登机。","m":"type"},{"s":"Where is gate B12?","z":"B12 登机口在哪里？","m":"type"}],"speaking":[{"s":"Excuse me, where is gate B12?","z":"打扰一下，B12 登机口在哪？","h":"Excuse me 用于引起注意"},{"s":"I have two pieces of luggage.","z":"我有两件行李。","h":"luggage 不可数，用 pieces 计数"},{"s":"Is this flight on time?","z":"这趟航班准点吗？","h":"on time 准点 / in time 及时"}]},{"id":"en-a2-c1-l2","title":"Hotel Check-in","subtitle":"入住酒店","icon":"🏨","minutes":15,"vocab":[{"t":"reserve","z":"预订","ex":"I reserved a room online.","ext":"我在网上订了房间。"},{"t":"room","z":"房间","ex":"A double room for two nights.","ext":"双人间，住两晚。"},{"t":"key card","z":"房卡","ex":"Here is your key card.","ext":"这是您的房卡。"},{"t":"breakfast","z":"早餐","ex":"Is breakfast included?","ext":"含早餐吗？"},{"t":"check in","z":"办理入住","ex":"I would like to check in.","ext":"我想办理入住。"},{"t":"floor","z":"楼层","ex":"Your room is on the fifth floor.","ext":"您的房间在五楼。"}],"grammar":{"t":"一般过去时（规则动词）","exp":"过去发生的动作用动词过去式：\n规则变化：动词 + ed → reserved, checked, stayed\n否定：did not (didn't) + 原形 → I didn't reserve a room.\n疑问：Did you + 原形...? → Did you reserve a room?","exs":[{"q":"I ___ a room online last night.","o":["reserve","reserved","reserving"],"a":1,"tip":"last night 提示过去时"},{"q":"___ you check in yesterday?","o":["Did","Do","Have"],"a":0,"tip":"过去时疑问用 Did"},{"q":"We ___ stay at that hotel again.","o":["didn't","don't","aren't"],"a":0,"tip":"过去否定 didn't + 原形"},{"q":"She ___ breakfast included in her booking.","o":["has","have","hads"],"a":0,"tip":"have 的过去式是 had，三单是 has"}]},"listening":[{"s":"I reserved a room online.","z":"我在网上订了房间。","m":"type"},{"s":"Is breakfast included?","z":"含早餐吗？","m":"type"},{"s":"Your room is on the fifth floor.","z":"您的房间在五楼。","m":"type"}],"speaking":[{"s":"I have a reservation under Lily.","z":"我有一个以 Lily 名义订的房间。","h":"under 表示\"以……名义\""},{"s":"What time is breakfast?","z":"早餐是几点？","h":"breakfast 重音在 BREAK-fast"},{"s":"Could I have an extra key?","z":"能多给我一把钥匙吗？","h":"Could I 比 Can I 更礼貌"}]},{"id":"en-a2-c1-l3","title":"Asking the Way","subtitle":"问路与导航","icon":"🗺️","minutes":14,"vocab":[{"t":"turn","z":"转弯","ex":"Turn left at the corner.","ext":"在拐角左转。"},{"t":"straight","z":"直行","ex":"Go straight for two blocks.","ext":"直走两个街区。"},{"t":"corner","z":"拐角","ex":"The shop is on the corner.","ext":"商店在拐角处。"},{"t":"station","z":"车站","ex":"How do I get to the station?","ext":"我怎么去车站？"},{"t":"next to","z":"在……旁边","ex":"It is next to the bank.","ext":"它在银行旁边。"},{"t":"cross","z":"穿过","ex":"Cross the street carefully.","ext":"小心过马路。"}],"grammar":{"t":"问路句型与祈使句","exp":"问路：How do I get to + 地点? / Is there a ... near here?\n指路常用祈使句（动词原形开头）：\n· Go straight. / Turn right. / Cross the road.\n礼貌版：Could you tell me how to get to the museum?","exs":[{"q":"How do I ___ to the museum?","o":["get","go","take"],"a":0,"tip":"get to + 地点是固定搭配"},{"q":"Go ___ and turn left.","o":["straight","straightly","forwardly"],"a":0,"tip":"straight 作副词不加 -ly"},{"q":"___ right at the bank.","o":["Turning","Turn","To turn"],"a":1,"tip":"祈使句用动词原形开头"},{"q":"Is there a station ___ here?","o":["near","next","close"],"a":0,"tip":"near here 在这附近"}]},"listening":[{"s":"Turn left at the corner.","z":"在拐角左转。","m":"type"},{"s":"Go straight for two blocks.","z":"直走两个街区。","m":"type"},{"s":"It is next to the bank.","z":"它在银行旁边。","m":"type"}],"speaking":[{"s":"How do I get to the station?","z":"我怎么去车站？","h":"get to 中 t 只发一次音"},{"s":"Is it far from here?","z":"离这里远吗？","h":"far 重读并拉长"},{"s":"Thanks for your help!","z":"谢谢你的帮助！","h":"Thanks for + 名词/动名词"}]}]},{"id":"en-b1-c1","lang":"en","level":"B1","icon":"💼","title":"职场进阶 · Work Smart","subtitle":"会议、观点、邮件，站稳国际职场","lessons":[{"id":"en-b1-c1-l1","title":"Team Meetings","subtitle":"高效开会表达","icon":"📊","minutes":16,"vocab":[{"t":"agenda","z":"议程","ex":"Let's go over the agenda.","ext":"我们过一遍议程。"},{"t":"deadline","z":"截止日期","ex":"The deadline is this Friday.","ext":"截止日期是本周五。"},{"t":"schedule","z":"安排/日程","ex":"Let's schedule a follow-up.","ext":"我们安排一次跟进吧。"},{"t":"progress","z":"进展","ex":"We are making good progress.","ext":"我们进展顺利。"},{"t":"suggest","z":"建议","ex":"I suggest moving the meeting.","ext":"我建议改期会议。"},{"t":"agree","z":"同意","ex":"I totally agree with you.","ext":"我完全同意你的看法。"}],"grammar":{"t":"建议句型：suggest + doing / that 从句","exp":"suggest doing sth → I suggest rescheduling the call.\nsuggest that sb (should) do → I suggest that we (should) move the deadline.\n类似表达：recommend / propose。注意 suggest 后不接 to do。","exs":[{"q":"I suggest ___ the deadline by one week.","o":["to extend","extending","extend"],"a":1,"tip":"suggest + doing"},{"q":"She suggests that he ___ earlier.","o":["arrives","arrive","arriving"],"a":1,"tip":"that 从句用虚拟语气原形"},{"q":"Let's ___ a follow-up meeting.","o":["schedule","scheduling","to schedule"],"a":0,"tip":"let's + 动词原形"},{"q":"We are making great ___ on the project.","o":["progress","progresses","progressing"],"a":0,"tip":"progress 不可数"}]},"listening":[{"s":"Let's go over the agenda first.","z":"我们先过一遍议程。","m":"type"},{"s":"I suggest moving the meeting to Tuesday.","z":"我建议把会议改到周二。","m":"type"},{"s":"I totally agree with you.","z":"我完全同意。","m":"type"}],"speaking":[{"s":"Could we schedule a meeting for Thursday?","z":"我们能安排周四开会吗？","h":"Could we 开场显得专业"},{"s":"I see your point, but...","z":"我明白你的意思，但是……","h":"委婉反对的万能开场"},{"s":"Let's touch base next week.","z":"我们下周再同步一下。","h":"touch base 是职场高频习语"}]},{"id":"en-b1-c1-l2","title":"Sharing Opinions","subtitle":"有理有据谈观点","icon":"💬","minutes":16,"vocab":[{"t":"opinion","z":"观点","ex":"In my opinion, it works well.","ext":"在我看来，它效果很好。"},{"t":"prefer","z":"更喜欢","ex":"I prefer working remotely.","ext":"我更喜欢远程办公。"},{"t":"instead","z":"代替/反而","ex":"Let's call instead of emailing.","ext":"我们打电话吧，别发邮件了。"},{"t":"however","z":"然而","ex":"However, there is a risk.","ext":"然而，这有风险。"},{"t":"example","z":"例子","ex":"For example, we lost ten users.","ext":"例如，我们流失了十个用户。"},{"t":"point","z":"要点/观点","ex":"You have a good point.","ext":"你说得有道理。"}],"grammar":{"t":"表达观点的递进结构","exp":"亮观点：In my opinion, ... / I'd say that ...\n给理由：because... / The reason is that ...\n举例子：For example, ... / For instance, ...\n让步转折：However, ... / That said, ...","exs":[{"q":"In my ___, remote work saves time.","o":["opinion","opinions","opining"],"a":0,"tip":"in my opinion 固定单数"},{"q":"I prefer ___ in a quiet place.","o":["work","working","to working"],"a":1,"tip":"prefer + doing"},{"q":"The plan is cheap; ___, it is risky.","o":["however","because","so"],"a":0,"tip":"however 表转折"},{"q":"For ___, we tried this last year.","o":["example","examples","instance of"],"a":0,"tip":"for example 固定搭配"}]},"listening":[{"s":"In my opinion, it works well.","z":"在我看来，它效果很好。","m":"type"},{"s":"You have a good point.","z":"你说得有道理。","m":"type"},{"s":"However, there is a risk.","z":"然而，这有风险。","m":"type"}],"speaking":[{"s":"I'd say we should test it first.","z":"我觉得我们应该先测试。","h":"I'd say 表委婉判断"},{"s":"That's a great point.","z":"这个观点很棒。","h":"point's /t/ 清晰"},{"s":"Let me give you an example.","z":"让我举个例子。","h":"example 重音在 ex-AM-ple"}]},{"id":"en-b1-c1-l3","title":"Writing Emails","subtitle":"商务邮件写作","icon":"✉️","minutes":16,"vocab":[{"t":"attach","z":"附上","ex":"I attached the report.","ext":"我附上了报告。"},{"t":"receive","z":"收到","ex":"We received your inquiry.","ext":"我们收到了您的问询。"},{"t":"reply","z":"回复","ex":"Please reply by Monday.","ext":"请在周一前回复。"},{"t":"confirm","z":"确认","ex":"Could you confirm the time?","ext":"您能确认时间吗？"},{"t":"apologize","z":"道歉","ex":"We apologize for the delay.","ext":"我们对延迟深表歉意。"},{"t":"regards","z":"（信末）问候","ex":"Best regards, Lily","ext":"此致敬礼，莉莉"}],"grammar":{"t":"现在完成时：have / has + 过去分词","exp":"表示\"已经做了、影响还在\"：\nI have attached the file.（文件现在还在邮件里）\nWe have received your email.\n过去分词：attach→attached, receive→received, write→written。","exs":[{"q":"I ___ already sent the contract.","o":["have","has","am"],"a":0,"tip":"主语 I 用 have"},{"q":"She ___ just replied to the email.","o":["have","has","is"],"a":1,"tip":"第三人称单数用 has"},{"q":"We ___ not received the payment yet.","o":["have","has","did"],"a":0,"tip":"we 搭配 have + not"},{"q":"___ you confirmed the booking?","o":["Have","Has","Do"],"a":0,"tip":"疑问把 Have 提前"}]},"listening":[{"s":"Please find the report attached.","z":"请查收附件中的报告。","m":"type"},{"s":"We apologize for the delay.","z":"我们对延迟深表歉意。","m":"type"},{"s":"Could you confirm the meeting time?","z":"您能确认会议时间吗？","m":"type"}],"speaking":[{"s":"I'm following up on my last email.","z":"我想跟进一下上封邮件。","h":"follow up on 职场必备"},{"s":"Please let me know if you have questions.","z":"如有疑问请告诉我。","h":"let me know 口语缩读为 lemme know"},{"s":"Looking forward to your reply.","z":"期待您的回复。","h":"to 是介词，后接名词/动名词"}]}]},{"id":"ja-a1-c1","lang":"ja","level":"A1","icon":"🌸","title":"はじめまして · 五十音与初见","subtitle":"从こんにちは开始，迈出日语第一步","lessons":[{"id":"ja-a1-c1-l1","title":"こんにちは！基础问候","subtitle":"日常寒暄高频句","icon":"👋","minutes":12,"vocab":[{"t":"こんにちは","r":"konnichiwa","z":"你好（白天）","ex":"田中さん、こんにちは。","ext":"田中先生，你好。"},{"t":"おはようございます","r":"ohayou gozaimasu","z":"早上好（礼貌）","ex":"先生、おはようございます。","ext":"老师，早上好。"},{"t":"ありがとう","r":"arigatou","z":"谢谢","ex":"手伝ってくれてありがとう。","ext":"谢谢你的帮忙。"},{"t":"すみません","r":"sumimasen","z":"不好意思/劳驾","ex":"すみません、駅はどこですか。","ext":"请问，车站在哪里？"},{"t":"さようなら","r":"sayounara","z":"再见","ex":"先生、さようなら。","ext":"老师，再见。"},{"t":"はい / いいえ","r":"hai / iie","z":"是 / 不是","ex":"— 学生ですか。— はい、そうです。","ext":"——你是学生吗？——是的。"}],"grammar":{"t":"「です」：礼貌判断句的基石","exp":"名词 + です＝\"是……\"（礼貌体）：\n· 学生です。（是学生。）\n· 日本人です。（是日本人。）\n否定形：名词 + じゃありません → 学生じゃありません。\n疑问：句尾加か → 学生ですか。答句用 はい／いいえ。","exs":[{"q":"わたしは学生____。","o":["です","ます","でした"],"a":0,"tip":"名词句用です"},{"q":"田中さん____ありません。（不是田中）","o":["じゃ","は","が"],"a":0,"tip":"じゃありません 是礼貌否定"},{"q":"— 先生です____。— はい、そうです。","o":["か","ね","よ"],"a":0,"tip":"か 表疑问，语调下沉"},{"q":"「早上好」的礼貌说法是？","o":["おはようございます","こんにちは","こんばんは"],"a":0,"tip":"对长辈要用长版"}]},"listening":[{"s":"田中さん、こんにちは。","z":"田中先生，你好。","m":"choice"},{"s":"はい、そうです。","z":"是的，是这样。","m":"choice"},{"s":"すみません、駅はどこですか。","z":"请问，车站在哪里？","m":"choice"}],"speaking":[{"s":"こんにちは。","z":"你好。","h":"konnichiwa 五拍：ko-n-ni-chi-wa，ん要独立占一拍"},{"s":"ありがとうございます。","z":"非常感谢。","h":"gozaimasu 的 u 轻读，几乎不发声"},{"s":"さようなら。","z":"再见。","h":"yo 要拉长一拍，sayo-o-nara"}]},{"id":"ja-a1-c1-l2","title":"わたしは学生です","subtitle":"自我介绍必备句","icon":"🙋","minutes":13,"vocab":[{"t":"わたし","r":"watashi","z":"我","ex":"わたしは学生です。","ext":"我是学生。"},{"t":"名前","r":"namae","z":"名字","ex":"お名前は何ですか。","ext":"您叫什么名字？"},{"t":"学生","r":"gakusei","z":"学生","ex":"妹も学生です。","ext":"妹妹也是学生。"},{"t":"先生","r":"sensei","z":"老师","ex":"山田先生は先生です。","ext":"山田先生是老师。"},{"t":"会社員","r":"kaishain","z":"公司职员","ex":"父は会社員です。","ext":"我爸爸是公司职员。"},{"t":"中国人","r":"chuugokujin","z":"中国人","ex":"わたしは中国人です。","ext":"我是中国人。"}],"grammar":{"t":"主题助词「は」：AはBです","exp":"「は」标记话题：わたしは学生です。（我〔这个话题〕是学生。）\n读作 wa 而不是 ha。\n问名字：お名前は何ですか。\n答：李です。／李と申します。（更礼貌）","exs":[{"q":"わたし____田中です。","o":["は","が","を"],"a":0,"tip":"は 标记主题"},{"q":"お名前____何ですか。","o":["は","も","に"],"a":0,"tip":"话题后接は"},{"q":"「我是学生」的正确说法：","o":["学生はわたしです","わたしは学生です","わたしが学生でした"],"a":1,"tip":"AはBです 的基本语序"},{"q":"山田さん____先生ですか。","o":["は","を","へ"],"a":0,"tip":"は 表示\"山田〔这个人〕\"是话题"}]},"listening":[{"s":"わたしは学生です。","z":"我是学生。","m":"choice"},{"s":"お名前は何ですか。","z":"您叫什么名字？","m":"choice"},{"s":"わたしは中国人です。","z":"我是中国人。","m":"choice"}],"speaking":[{"s":"わたしは李です。","z":"我姓李。","h":"は读 wa，不要读成 ha"},{"s":"どうぞよろしくお願いします。","z":"请多关照。","h":"初见自我介绍的固定收尾"},{"s":"初めまして。","z":"初次见面。","h":"hajimemashite 六拍清晰发出"}]},{"id":"ja-a1-c1-l3","title":"いくらですか 数字与购物","subtitle":"数数、日元与砍价","icon":"💴","minutes":14,"vocab":[{"t":"一・二・三","r":"ichi / ni / san","z":"一 / 二 / 三","ex":"りんごを三つください。","ext":"请给我三个苹果。"},{"t":"円","r":"en","z":"日元","ex":"これは五百円です。","ext":"这是五百日元。"},{"t":"いくら","r":"ikura","z":"多少钱","ex":"これはいくらですか。","ext":"这个多少钱？"},{"t":"高い","r":"takai","z":"贵的","ex":"ちょっと高いですね。","ext":"有点贵呢。"},{"t":"安い","r":"yasui","z":"便宜的","ex":"この店は安いです。","ext":"这家店便宜。"},{"t":"ください","r":"kudasai","z":"请给我","ex":"水をください。","ext":"请给我水。"}],"grammar":{"t":"を + ください：最实用的索取句","exp":"名词 + を + ください＝\"请给我……\"：\n· 水をください。（请给我水。）\n· これをください。（请给我这个。）\n问价：これはいくらですか。\n感叹贵/便宜：高いですね／安いですね。","exs":[{"q":"コーヒー____ください。","o":["を","は","が"],"a":0,"tip":"を 标记宾语"},{"q":"これは____ですか。（多少钱）","o":["いくら","いつ","だれ"],"a":0,"tip":"いくら 问价格"},{"q":"「请给我这个」的说法：","o":["これをください","これですください","これがください"],"a":0,"tip":"これ＋を＋ください"},{"q":"五百円的读法：","o":["ごひゃくえん","ごせんえん","はっぴゃくえん"],"a":0,"tip":"500＝ごひゃく"}]},"listening":[{"s":"これはいくらですか。","z":"这个多少钱？","m":"choice"},{"s":"これは五百円です。","z":"这是五百日元。","m":"choice"},{"s":"水をください。","z":"请给我水。","m":"choice"}],"speaking":[{"s":"これをください。","z":"请给我这个。","h":"指着商品说，万能购物句"},{"s":"これはいくらですか。","z":"这个多少钱？","h":"ikura 的 i 短促"},{"s":"ちょっと高いですね。","z":"有点贵呢。","h":"e 的音收尾轻轻上扬表委婉"}]}]},{"id":"ja-a1-c2","lang":"ja","level":"A1","icon":"🍙","title":"まいにち · 每一天的日语","subtitle":"食物、时间与家人，日常对话打底","lessons":[{"id":"ja-a1-c2-l1","title":"たべもの 食物与口味","subtitle":"点餐必备词","icon":"🍣","minutes":13,"vocab":[{"t":"すし","r":"sushi","z":"寿司","ex":"すしが食べたいです。","ext":"想吃寿司。"},{"t":"ラーメン","r":"raamen","z":"拉面","ex":"ラーメンを一つお願いします。","ext":"请来一份拉面。"},{"t":"お茶","r":"ocha","z":"茶","ex":"お茶を飲みます。","ext":"喝茶。"},{"t":"卵","r":"tamago","z":"鸡蛋","ex":"毎朝卵を食べます。","ext":"每天早上吃鸡蛋。"},{"t":"おいしい","r":"oishii","z":"好吃的","ex":"この店は本当においしいです。","ext":"这家店真好吃。"},{"t":"甘い","r":"amai","z":"甜的","ex":"このケーキは甘いです。","ext":"这个蛋糕很甜。"}],"grammar":{"t":"ます形：动词的礼貌现在时","exp":"动词 + ます＝礼貌肯定：食べます（吃）、飲みます（喝）。\n否定：ます → ません → 食べません（不吃）。\n过去：ました → 昨日、すしを食べました。\n「～たいです」表想要：すしが食べたいです。","exs":[{"q":"毎朝ご飯を____。（吃）","o":["食べます","食べません","食べたい"],"a":0,"tip":"日常习惯用ます形肯定"},{"q":"肉を____。（不吃肉）","o":["食べます","食べません","食べました"],"a":1,"tip":"ません 是礼貌否定"},{"q":"「想喝咖啡」的说法：","o":["コーヒーを飲みたいです","コーヒーを飲みます","コーヒーを飲みません"],"a":0,"tip":"たいです 表愿望"},{"q":"昨日、ラーメンを____。（昨天吃了）","o":["食べます","食べました","食べません"],"a":1,"tip":"ました 表过去"}]},"listening":[{"s":"この店は本当においしいです。","z":"这家店真好吃。","m":"choice"},{"s":"毎朝卵を食べます。","z":"每天早上吃鸡蛋。","m":"choice"},{"s":"ラーメンを一つお願いします。","z":"请来一份拉面。","m":"choice"}],"speaking":[{"s":"これをください。","z":"请给我这个。","h":"点餐指着菜单即可"},{"s":"おいしいです！","z":"很好吃！","h":"o-i-shi-i 四拍，每拍清楚"},{"s":"コーヒーをお願いします。","z":"麻烦来杯咖啡。","h":"onegai shimasu 通用礼貌请求"}]},{"id":"ja-a1-c2-l2","title":"なんじ・何点 时间与星期","subtitle":"看时间、约时间","icon":"🕰️","minutes":13,"vocab":[{"t":"今","r":"ima","z":"现在","ex":"今、何時ですか。","ext":"现在几点？"},{"t":"時","r":"ji","z":"……点钟","ex":"九時です。","ext":"九点。"},{"t":"半","r":"han","z":"……点半","ex":"九時半です。","ext":"九点半。"},{"t":"月曜日","r":"getsuyoubi","z":"星期一","ex":"月曜日に会いましょう。","ext":"周一见吧。"},{"t":"休み","r":"yasumi","z":"休息","ex":"今日は休みです。","ext":"今天休息。"},{"t":"会う","r":"au","z":"见面","ex":"駅で会いましょう。","ext":"在车站见吧。"}],"grammar":{"t":"时间表达与「に」","exp":"问时间：今、何時ですか。\n点数 + 時（ji）：三時（sanji）、四時（yoji）、九時（kuji）——注意特殊读音！\n分钟 + 分（fun/pun）：十分（juppun）。\n具体时间点后加 に：九時に会いましょう。星期后也加 に：月曜日に。","exs":[{"q":"今____ですか。（几点）","o":["何時","何分","何日"],"a":0,"tip":"何時＝几点"},{"q":"四時的读法是？","o":["よじ","よんじ","しじ"],"a":0,"tip":"4 点读 yoji，特殊"},{"q":"月曜日____会いましょう。","o":["に","で","を"],"a":0,"tip":"时间点后用に"},{"q":"「九点半」是：","o":["九時半","九半時","九時分"],"a":0,"tip":"半 放在時之后"}]},"listening":[{"s":"今、何時ですか。","z":"现在几点？","m":"choice"},{"s":"九時半です。","z":"九点半。","m":"choice"},{"s":"月曜日に会いましょう。","z":"周一见吧。","m":"choice"}],"speaking":[{"s":"今、何時ですか。","z":"现在几点？","h":"nanji 的 ji 清晰"},{"s":"九時に会いましょう。","z":"九点见吧。","h":"mashou 收尾上扬表提议"},{"s":"今日は休みです。","z":"今天休息。","h":"kyou 一拍读出 kyo"}]},{"id":"ja-a1-c2-l3","title":"かぞく 家人与称呼","subtitle":"介绍你的家人","icon":"👨‍👩‍👧","minutes":13,"vocab":[{"t":"家族","r":"kazoku","z":"家人","ex":"家族は四人です。","ext":"家里有四口人。"},{"t":"父","r":"chichi","z":"（我的）爸爸","ex":"父は会社員です。","ext":"我爸爸是公司职员。"},{"t":"母","r":"haha","z":"（我的）妈妈","ex":"母は料理が好きです。","ext":"我妈妈喜欢做菜。"},{"t":"兄","r":"ani","z":"（我的）哥哥","ex":"兄は大学生です。","ext":"我哥哥是大学生。"},{"t":"姉","r":"ane","z":"（我的）姐姐","ex":"姉は東京に住んでいます。","ext":"我姐姐住在东京。"},{"t":"好き","r":"suki","z":"喜欢","ex":"音楽が好きです。","ext":"我喜欢音乐。"}],"grammar":{"t":"喜欢与擅长：が好きです／が上手です","exp":"喜欢对象用助词 が：音楽が好きです。\n讨厌：嫌いです → 納豆が嫌いです。\n擅长／不擅长：上手です／下手です → 料理が上手です。\n注意：称呼自己家人用 父・母・兄・姉；称呼别人家人用 お父さん・お母さん・お兄さん・お姉さん。","exs":[{"q":"音楽____好きです。","o":["が","は","を"],"a":0,"tip":"好き 前用 が"},{"q":"料理が____。（很擅长做饭）","o":["上手です","好きです","あります"],"a":0,"tip":"上手＝擅长"},{"q":"向别人提到自己妈妈用：","o":["母","お母さん","ママさん"],"a":0,"tip":"自谦称 母（haha）"},{"q":"納豆が嫌い____。","o":["です","ます","に"],"a":0,"tip":"嫌い 是名词性形容，接です"}]},"listening":[{"s":"家族は四人です。","z":"家里有四口人。","m":"choice"},{"s":"母は料理が好きです。","z":"我妈妈喜欢做菜。","m":"choice"},{"s":"兄は大学生です。","z":"我哥哥是大学生。","m":"choice"}],"speaking":[{"s":"家族は四人です。","z":"家里四口人。","h":"yonin 一拍读出 nyo"},{"s":"音楽が好きです。","z":"我喜欢音乐。","h":"suki 的 u 轻读"},{"s":"父は会社員です。","z":"我爸爸是公司职员。","h":"kaishain 重心在中段"}]}]},{"id":"ja-a2-c1","lang":"ja","level":"A2","icon":"🚄","title":"たびの日本語 · 旅行日语","subtitle":"空港、酒店、问路，一路畅通","lessons":[{"id":"ja-a2-c1-l1","title":"空港と駅 机场与车站","subtitle":"交通出行表达","icon":"🛫","minutes":15,"vocab":[{"t":"切符","r":"kippu","z":"票","ex":"京都までの切符をください。","ext":"请给我到京都的票。"},{"t":"電車","r":"densha","z":"电车","ex":"次の電車に乗ります。","ext":"坐下一班电车。"},{"t":"乗り換え","r":"norikae","z":"换乘","ex":"次の駅で乗り換えです。","ext":"在下一站换乘。"},{"t":"何番線","r":"nanbansen","z":"几号站台","ex":"何番線ですか。","ext":"是几号站台？"},{"t":"遅れる","r":"okureru","z":"迟到/晚点","ex":"電車が遅れています。","ext":"电车晚点了。"},{"t":"荷物","r":"nimotsu","z":"行李","ex":"荷物を預けたいです。","ext":"我想托运行李。"}],"grammar":{"t":"たいです 与 て形活用","exp":"想要做某事：动词ます形去ます + たいです → 乗りたいです（想坐）。\nて形请求：～てください → 待ってください（请等等）。\nて形正在进行：～ています → 電車が遅れています（正在晚点）。","exs":[{"q":"京都に行き____。（想去）","o":["たいです","ます","ました"],"a":0,"tip":"去ます形 + たい"},{"q":"ちょっと待っ____。（请等一下）","o":["てください","ています","たいです"],"a":0,"tip":"てください 表请求"},{"q":"今、雨が降っ____。（正在下雨）","o":["ています","ます","たい"],"a":0,"tip":"ています 表进行"},{"q":"「想托运行李」：","o":["荷物を預けたいです","荷物を預けます","荷物を預けて"],"a":0,"tip":"預けます → 預けたい"}]},"listening":[{"s":"京都までの切符をください。","z":"请给我到京都的票。","m":"type"},{"s":"次の駅で乗り換えです。","z":"在下一站换乘。","m":"type"},{"s":"電車が遅れています。","z":"电车晚点了。","m":"type"}],"speaking":[{"s":"すみません、何番線ですか。","z":"请问，是几号站台？","h":"nanbansen 快速连读"},{"s":"ここで乗り換えですか。","z":"是在这里换乘吗？","h":"koko 清晰，de 轻音"},{"s":"荷物を預けたいです。","z":"我想托运行李。","h":"azukeru 中 ku 短促"}]},{"id":"ja-a2-c1-l2","title":"ホテルに泊まる 酒店住宿","subtitle":"入住与需求沟通","icon":"🏨","minutes":15,"vocab":[{"t":"予約","r":"yoyaku","z":"预约","ex":"予約しています。","ext":"我有预订。"},{"t":"チェックイン","r":"chekkuin","z":"入住","ex":"チェックインをお願いします。","ext":"麻烦办理入住。"},{"t":"部屋","r":"heya","z":"房间","ex":"静かな部屋をお願いします。","ext":"请给我安静的房间。"},{"t":"空いている","r":"aiteiru","z":"空着的","ex":"明日は空いていますか。","ext":"明天有空房吗？"},{"t":"泊まる","r":"tomaru","z":"住宿","ex":"二泊します。","ext":"住两晚。"},{"t":"荷物を預かる","r":"nimotsu o azukaru","z":"保管行李","ex":"荷物を預かってください。","ext":"请帮我保管行李。"}],"grammar":{"t":"形容词修饰名词与礼貌请求","exp":"い形容词直接修饰：静かな部屋（×い形容词用な）→ いい部屋、広い部屋\nな形容词修饰 + な：きれいな部屋、便利な部屋\n请求：～をお願いします／～てください\n→ チェックインをお願いします。／荷物を預かってください。","exs":[{"q":"____部屋をお願いします。（安静的房间）","o":["静かな","静か","静かの"],"a":0,"tip":"な形容词修饰名词加な"},{"q":"チェックイン____お願いします。","o":["を","が","は"],"a":0,"tip":"外来语名词用を"},{"q":"「房间宽敞」的说法：","o":["広い部屋です","広いな部屋です","広部屋です"],"a":0,"tip":"い形容词直接修饰"},{"q":"予約____います。（已预约）","o":["し","して","したい"],"a":1,"tip":"しています 表状态持续"}]},"listening":[{"s":"予約しています。","z":"我有预订。","m":"type"},{"s":"静かな部屋をお願いします。","z":"请给我安静的房间。","m":"type"},{"s":"明日は空いていますか。","z":"明天有空房吗？","m":"type"}],"speaking":[{"s":"チェックインをお願いします。","z":"麻烦办理入住。","h":"chekkuin 是外来语，音节平缓"},{"s":"何時まで泊まれますか。","z":"可以住到几点？","h":"tomaremasu 中 ma 重读"},{"s":"朝食は何時からですか。","z":"早餐从几点开始？","h":"choushoku 的 chou 长音"}]},{"id":"ja-a2-c1-l3","title":"道を聞く 问路指路","subtitle":"迷路也不慌","icon":"🗺️","minutes":14,"vocab":[{"t":"道","r":"michi","z":"路","ex":"道に迷いました。","ext":"我迷路了。"},{"t":"まっすぐ","r":"massugu","z":"一直","ex":"まっすぐ行ってください。","ext":"请直走。"},{"t":"右 / 左","r":"migi / hidari","z":"右 / 左","ex":"次の信号を右に曲がってください。","ext":"请在下一个红绿灯右转。"},{"t":"曲がる","r":"magaru","z":"转弯","ex":"角を左に曲がります。","ext":"在拐角左转。"},{"t":"遠い","r":"tooi","z":"远的","ex":"歩いて遠いですか。","ext":"走路远吗？"},{"t":"近く","r":"chikaku","z":"附近","ex":"駅の近くにあります。","ext":"在车站附近。"}],"grammar":{"t":"て形指路与动作顺序","exp":"て形可连接动作顺序：まっすぐ行って、信号を右に曲がってください。（直走，然后红绿灯右转。）\nて形变化：行く→行って、曲がる→曲がって、待つ→待って。\n「有/在」：駅の近くにあります。","exs":[{"q":"まっすぐ行っ____、右に曲がってください。","o":["て","で","に"],"a":0,"tip":"行く的て形是行って"},{"q":"信号____曲がってください。","o":["を","が","に"],"a":0,"tip":"を 标记经过点"},{"q":"「角を左に曲がる」意思是：","o":["在拐角左转","在左边转角","左边的街道"],"a":0,"tip":"角＝拐角"},{"q":"駅の____にコンビニがあります。","o":["近く","遠い","まっすぐ"],"a":0,"tip":"近くに＝在附近"}]},"listening":[{"s":"道に迷いました。","z":"我迷路了。","m":"type"},{"s":"まっすぐ行ってください。","z":"请直走。","m":"type"},{"s":"歩いて遠いですか。","z":"走路远吗？","m":"type"}],"speaking":[{"s":"すみません、道に迷いました。","z":"不好意思，我迷路了。","h":"memoimashita 连读顺滑"},{"s":"これは地図でいいですか。","z":"这样看地图可以吗？","h":"chizu 的 zu 清晰"},{"s":"歩いて何分ぐらいですか。","z":"走路大概几分钟？","h":"gurai 表\"大约\""}]}]},{"id":"ja-b1-c1","lang":"ja","level":"B1","icon":"🏢","title":"ビジネス日本語 · 职场日语","subtitle":"敬语、会议与邮件，站稳日企","lessons":[{"id":"ja-b1-c1-l1","title":"あいさつと敬語 寒暄与敬语","subtitle":"职场第一印象","icon":"🙇","minutes":16,"vocab":[{"t":"お世話になります","r":"osewa ni narimasu","z":"承蒙关照","ex":"いつもお世話になります。","ext":"一直承蒙您的关照。"},{"t":"失礼します","r":"shitsurei shimasu","z":"打扰了/告辞","ex":"会議室で失礼します。","ext":"进会议室打扰了。"},{"t":"お先に","r":"osaki ni","z":"我先走一步","ex":"お先に失礼します。","ext":"我先走一步，失礼了。"},{"t":"検討する","r":"kentou suru","z":"研究/考虑","ex":"検討してみます。","ext":"我研究一下看看。"},{"t":"承知しました","r":"shouchi shimashita","z":"明白了（恭敬）","ex":"はい、承知しました。","ext":"好的，我明白了。"},{"t":"恐れ入ります","r":"osoreirimasu","z":"不好意思/惶恐","ex":"恐れ入りますが、もう一度お願いします。","ext":"不好意思，麻烦再说一遍。"}],"grammar":{"t":"尊敬语与谦让语入门","exp":"尊他语（抬高对方）：いらっしゃいます（在/来）→ 社長がいらっしゃいます。\n谦让语（压低自己）：おります／いたします（做）→ 私がいたします。\nお＋动词ます形＋します＝谦让：お待ちします（我等您）。\n对比：普通「待ちます」→ 敬语「お待ちします」。","exs":[{"q":"社長が____。（社长来了）","o":["いらっしゃいます","おります","まいります(谦让)"],"a":0,"tip":"尊他语用いらっしゃる"},{"q":"私が案内____。（我来引导〔谦让〕）","o":["いたします","います","くださいます"],"a":0,"tip":"いたします 是谦让"},{"q":"「明白了」的恭敬说法：","o":["承知しました","わかった","そうだね"],"a":0,"tip":"职场回复标配"},{"q":"お待ち____。","o":["します","です","ます"],"a":0,"tip":"お＋ます形＋します 谦让句型"}]},"listening":[{"s":"いつもお世話になります。","z":"一直承蒙您的关照。","m":"type"},{"s":"はい、承知しました。","z":"好的，我明白了。","m":"type"},{"s":"恐れ入りますが、もう一度お願いします。","z":"不好意思，麻烦再说一遍。","m":"type"}],"speaking":[{"s":"お疲れ様です。","z":"辛苦了（同事间寒暄）。","h":"o-tsu-ka-re 音节均衡"},{"s":"お先に失礼します。","z":"我先走一步。","h":"osaki 重音在 sa"},{"s":"かしこまりました。","z":"遵命/明白了（最恭敬）。","h":"kashikomarimashita 长句拆三段读"}]},{"id":"ja-b1-c1-l2","title":"会議で発言 会议发言","subtitle":"有条理地表达意见","icon":"📊","minutes":16,"vocab":[{"t":"議題","r":"gidai","z":"议题","ex":"議題について説明します。","ext":"我来说明一下议题。"},{"t":"意見","r":"iken","z":"意见","ex":"簡単に意見を言わせてください。","ext":"请让我简单说下意见。"},{"t":"賛成","r":"sansei","z":"赞成","ex":"この案に賛成です。","ext":"我赞成这个方案。"},{"t":"反対","r":"hantai","z":"反对","ex":"残念ですが反対です。","ext":"很遗憾，我反对。"},{"t":"確認する","r":"kakunin suru","z":"确认","ex":"念のため確認させてください。","ext":"为保险起见让我确认一下。"},{"t":"決める","r":"kimeru","z":"决定","ex":"今日中に決めましょう。","ext":"今天之内定下来吧。"}],"grammar":{"t":"使役与授受：させてください","exp":"～させてください＝\"请允许我～\"：説明させてください。\n变化：する→させて、言う→言わせて、確認する→確認させて。\n委婉表达意见：～と思います／～ではないでしょうか。\n反对缓冲：残念ですが／恐縮ですが。","exs":[{"q":"意見を言わせ____ください。","o":["て","で","に"],"a":0,"tip":"言う→言わせて"},{"q":"念のため確認____ください。","o":["させて","して","したくて"],"a":0,"tip":"確認させてください 固定"},{"q":"委婉反对的开头：","o":["残念ですが","絶対だめ","うそでしょ"],"a":0,"tip":"职场要缓冲语"},{"q":"この案に____です。","o":["賛成","賛成し","賛成な"],"a":0,"tip":"賛成＋です"}]},"listening":[{"s":"簡単に意見を言わせてください。","z":"请让我简单说下意见。","m":"type"},{"s":"残念ですが反対です。","z":"很遗憾，我反对。","m":"type"},{"s":"念のため確認させてください。","z":"保险起见让我确认一下。","m":"type"}],"speaking":[{"s":"私の意見は少し違います。","z":"我的意见稍有不同。","h":"sukoshi 轻读缓冲"},{"s":"それで進めてもいいでしょうか。","z":"这样可以推进吗？","h":"mite mo ii 是\"可以吗\"句型"},{"s":"本日の議題はこれで終わります。","z":"今天的议题到此结束。","h":"honjitsu 一拍读出 hon-jitsu"}]},{"id":"ja-b1-c1-l3","title":"ビジネスメール 商务邮件","subtitle":"从标题到落款","icon":"✉️","minutes":16,"vocab":[{"t":"添付する","r":"tenpu suru","z":"附上（附件）","ex":"資料を添付しました。","ext":"已附上资料。"},{"t":"ご確認ください","r":"gokakunin kudasai","z":"请确认","ex":"ご確認のほど、よろしくお願いします。","ext":"烦请确认，谢谢。"},{"t":"返信","r":"henshin","z":"回复","ex":"お返信をお待ちしています。","ext":"静候回复。"},{"t":"取り急ぎ","r":"torisegi","z":"先简要（回复）","ex":"取り急ぎご報告まで。","ext":"先简要报告至此。"},{"t":"ご連絡","r":"gorenraku","z":"联系（敬语）","ex":"ご連絡ありがとうございます。","ext":"感谢您的联系。"},{"t":"よろしくお願いいたします","r":"yoroshiku onegai itashimasu","z":"拜托了（最礼貌）","ex":"今後ともよろしくお願いいたします。","ext":"今后也请多多关照。"}],"grammar":{"t":"お／ご＋名词与邮件框架","exp":"美化为敬语前缀：お返信・ご確認・ご連絡（ご 多接汉语词，お 多接和语词）。\n邮件结构：①お世話になります ②本文（～いただきたく存じます） ③取り急ぎ／以上 ④よろしくお願いいたします。\n～ております＝している 的谦让：資料を確認しております。","exs":[{"q":"____のほど、よろしくお願いします。","o":["ご確認","確認する","確認だ"],"a":0,"tip":"ご確認のほど 高频套话"},{"q":"資料を添付し____。","o":["ました","です","たい"],"a":0,"tip":"添付しました＝已附上"},{"q":"现在正在确认（谦让）：","o":["確認しております","確認しています","確認します"],"a":0,"tip":"おります 更谦恭"},{"q":"「静候回复」的说法：","o":["お返信をお待ちしています","返信ください","返信する"],"a":0,"tip":"お＋名词＋をお待ちしています"}]},"listening":[{"s":"資料を添付しました。","z":"已附上资料。","m":"type"},{"s":"ご確認のほど、よろしくお願いします。","z":"烦请确认，谢谢。","m":"type"},{"s":"取り急ぎご報告まで。","z":"先简要报告至此。","m":"type"}],"speaking":[{"s":"お世話になっております。","z":"承蒙关照（邮件开头）。","h":"onatte 重音在 na"},{"s":"ご検討のほど、よろしくお願いいたします。","z":"烦请研究考虑，拜托了。","h":"kentou 的 tou 长音"},{"s":"お手数をおかけしますが。","z":"给您添麻烦了（但是……）。","h":"tesuu 的 suu 长音"}]}]},{"id":"ko-a1-c1","lang":"ko","level":"A1","icon":"🌟","title":"한글과 인사 · 韩文字母与问候","subtitle":"从안녕하세요开始，一周开口说韩语","lessons":[{"id":"ko-a1-c1-l1","title":"안녕하세요! 基础问候","subtitle":"日常寒暄高频句","icon":"👋","minutes":12,"vocab":[{"t":"안녕하세요","r":"annyeonghaseyo","z":"你好","ex":"선생님, 안녕하세요!","ext":"老师，你好！"},{"t":"감사합니다","r":"gamsahamnida","z":"谢谢","ex":"도와주셔서 감사합니다.","ext":"谢谢你的帮助。"},{"t":"안녕히 가세요","r":"annyeonghi gaseyo","z":"再见（对方走）","ex":"내일 봐요. 안녕히 가세요.","ext":"明天见，慢走。"},{"t":"네 / 아니요","r":"ne / aniyo","z":"是 / 不是","ex":"네, 맞아요.","ext":"是的，没错。"},{"t":"죄송합니다","r":"joesonghamnida","z":"对不起","ex":"늦어서 죄송합니다.","ext":"来晚了，对不起。"},{"t":"잘 자요","r":"jal jayo","z":"晚安","ex":"피곤하시죠? 잘 자요.","ext":"累了吧？晚安。"}],"grammar":{"t":"종결어미 「-요」：礼貌句尾","exp":"在动词/形容词词干后加 -요 构成礼貌体（해요체）：\n· 좋아요.（好。） 맞아요.（对。）\n· 먹어요.（吃。） 가요.（走。）\n正式场合用 -ㅂ니다 体：감사합니다（谢谢）。\n「네」表肯定应答，「아니요」表否定。","exs":[{"q":"— 학생이에요? — ___, 맞아요.","o":["네","아니요","감사합니다"],"a":0,"tip":"肯定回答用 네"},{"q":"礼貌说\"谢谢\"：","o":["감사합니다","안녕하세요","죄송합니다"],"a":0,"tip":"감사합니다 = 谢谢"},{"q":"이 음식은 정말 맛있__.","o":["어요","습니다가","니다요"],"a":0,"tip":"맛있 + 어요"},{"q":"对方离开时说：","o":["안녕히 가세요","안녕히 계세요","잘 자요"],"a":0,"tip":"가세요 = \"走\"，留的人说这句"}]},"listening":[{"s":"선생님, 안녕하세요!","z":"老师，你好！","m":"choice"},{"s":"네, 맞아요.","z":"是的，没错。","m":"choice"},{"s":"늦어서 죄송합니다.","z":"来晚了，对不起。","m":"choice"}],"speaking":[{"s":"안녕하세요!","z":"你好！","h":"an-nyeong-ha-se-yo 五个音节平均送出"},{"s":"감사합니다.","z":"谢谢。","h":"mnida 收尾鼻腔感，不要读成 mida"},{"s":"네, 맞아요.","z":"是的，没错。","h":"maja 连读，\"马-加\""}]},{"id":"ko-a1-c1-l2","title":"저는 학생입니다","subtitle":"自我介绍核心句型","icon":"🙋","minutes":13,"vocab":[{"t":"저","r":"jeo","z":"我（谦称）","ex":"저는 리여예요.","ext":"我姓李。"},{"t":"이름","r":"ireum","z":"名字","ex":"이름이 뭐예요?","ext":"你叫什么名字？"},{"t":"학생","r":"haksaeng","z":"学生","ex":"동생도 학생이에요.","ext":"弟弟/妹妹也是学生。"},{"t":"선생님","r":"seonsaengnim","z":"老师","ex":"김 선생님은 선생님이에요.","ext":"金老师是老师。"},{"t":"회사원","r":"hoesawon","z":"公司职员","ex":"아버지는 회사원이에요.","ext":"我爸爸是公司职员。"},{"t":"중국 사람","r":"junguk saram","z":"中国人","ex":"저는 중국 사람이에요.","ext":"我是中国人。"}],"grammar":{"t":"은/는 与 이에요/예요","exp":"은/는 标记话题：最后音节有收音用 은，无收音用 는。\n→ 저는（无收音）이름은（有收音）。\n判断句\"是\"：有收音 + 이에요，无收音 + 예요。\n→ 학생이에요.（学生）리예요.（小李）\n问名字：이름이 뭐예요?","exs":[{"q":"저___ 학생이에요.","o":["는","은","를"],"a":0,"tip":"저 无收音，用 는"},{"q":"이름___ 뭐예요?","o":["은","는","이"],"a":0,"tip":"름 有收音，用 은"},{"q":"저는 한국 사람___","o":["이에요","예요","해요"],"a":0,"tip":"람 有收音 → 이에요"},{"q":"저는 리___","o":["예요","이에요","습니다"],"a":0,"tip":"리 无收音 → 예요"}]},"listening":[{"s":"저는 학생이에요.","z":"我是学生。","m":"choice"},{"s":"이름이 뭐예요?","z":"你叫什么名字？","m":"choice"},{"s":"저는 중국 사람이에요.","z":"我是中国人。","m":"choice"}],"speaking":[{"s":"저는 리예요.","z":"我姓李。","h":"换成你自己的姓试试"},{"s":"반갑습니다.","z":"很高兴认识你。","h":"ban-gap-seum-nida 四拍"},{"s":"만나서 반가워요.","z":"见到你很高兴。","h":"mannaseo 连读\"曼纳索\""}]},{"id":"ko-a1-c1-l3","title":"얼마예요? 数字与购物","subtitle":"数数、韩元与杀价","icon":"💰","minutes":14,"vocab":[{"t":"하나·둘·셋","r":"hana / dul / set","z":"一 / 二 / 三（数量）","ex":"우유 둘 주세요.","ext":"请给我两瓶牛奶。"},{"t":"일·이·삼","r":"il / i / sam","z":"一 / 二 / 三（号码）","ex":"전화번호는 삼오일이에요.","ext":"电话号码是 351。"},{"t":"원","r":"won","z":"韩元","ex":"이거 오천 원이에요.","ext":"这个五千韩元。"},{"t":"얼마","r":"eolma","z":"多少钱","ex":"이거 얼마예요?","ext":"这个多少钱？"},{"t":"비싸다","r":"bissada","z":"贵","ex":"너무 비싸요.","ext":"太贵了。"},{"t":"싸다","r":"ssada","z":"便宜","ex":"여기가 더 싸요.","ext":"这里更便宜。"}],"grammar":{"t":"两套数字与「주세요」","exp":"韩语数字有两套：固有词 하나·둘·셋（数量），汉字词 일·이·삼（号码/价格单位）。\n价格：汉字词 + 원 → 오천 원（五千元）。\n请给我～：名词 + 주세요 → 이거 주세요.（请给我这个。）\n问价：이거 얼마예요?","exs":[{"q":"이거 ___ 예요?（多少钱）","o":["얼마","뭐","누구"],"a":0,"tip":"얼마 问价格"},{"q":"커피 ___ 주세요.（请给我两杯）","o":["둘","이","두"],"a":0,"tip":"数量用固有词 둘"},{"q":" 삼오일은 用来说：","o":["电话号码","三个苹果","五点半"],"a":0,"tip":"号码用汉字词"},{"q":"너무 ___ 요.（太贵了）","o":["비싸","싸","맛있"],"a":0,"tip":"비싸다 → 비싸요"}]},"listening":[{"s":"이거 얼마예요?","z":"这个多少钱？","m":"choice"},{"s":"이거 오천 원이에요.","z":"这个五千韩元。","m":"choice"},{"s":"여기가 더 싸요.","z":"这里更便宜。","m":"choice"}],"speaking":[{"s":"이거 주세요.","z":"请给我这个。","h":"指着商品说，万能购物句"},{"s":"이거 얼마예요?","z":"这个多少钱？","h":"eolma 的 eo 嘴巴微张"},{"s":"좀 깎아 주세요.","z":"请便宜一点（杀价）。","h":"kkakka 双 kk 紧音"}]}]},{"id":"ko-a1-c2","lang":"ko","level":"A1","icon":"🍜","title":"일상 생활 · 每一天的韩语","subtitle":"食物、时间与家人，日常对话打底","lessons":[{"id":"ko-a1-c2-l1","title":"음식 食物与口味","subtitle":"点餐必备词","icon":"🍲","minutes":13,"vocab":[{"t":"김치찌개","r":"kimchijjigae","z":"泡菜汤","ex":"김치찌개 하나 주세요.","ext":"请给我一份泡菜汤。"},{"t":"비빔밥","r":"bibimbap","z":"拌饭","ex":"비빔밥이 유명해요.","ext":"拌饭很有名。"},{"t":"물","r":"mul","z":"水","ex":"물 좀 주세요.","ext":"请给我点水。"},{"t":"맛있다","r":"masitda","z":"好吃","ex":"이거 진짜 맛있어요!","ext":"这个真好吃！"},{"t":"맵다","r":"maepda","z":"辣","ex":"너무 매워요!","ext":"太辣了！"},{"t":"달다","r":"dalda","z":"甜","ex":"이 케이크는 달아요.","ext":"这个蛋糕很甜。"}],"grammar":{"t":"「-고 싶다」：想做什么","exp":"动词词干 + 고 싶어요＝想～：먹다 → 먹고 싶어요.（想吃）\n吃喝请求点单：名词 + 주세요 / 名词 + 하나 주세요（来一份～）。\n「진짜／너무」加强程度：진짜 맛있어요!（真好吃！）","exs":[{"q":"비빔밥을 먹고 ___요.","o":["싶","잘","않"],"a":0,"tip":"고 싶어요 表愿望"},{"q":"물 좀 ___ 주세요.","o":["가져다","가져가","가져도"],"a":0,"tip":"가져다 주세요 帮我拿来"},{"q":"이거 진짜 ___!","o":["맛있어요","맛싶어요","먹어요"],"a":0,"tip":"맛있다 → 맛있어요"},{"q":"너무 ___요!（太辣了）","o":["매워","맵워","매운"],"a":0,"tip":"맵다 → 매워요（ㅂ不规则）"}]},"listening":[{"s":"김치찌개 하나 주세요.","z":"请给我一份泡菜汤。","m":"choice"},{"s":"이거 진짜 맛있어요!","z":"这个真好吃！","m":"choice"},{"s":"너무 매워요!","z":"太辣了！","m":"choice"}],"speaking":[{"s":"이거 주세요.","z":"请给我这个。","h":"菜单指一指就通用"},{"s":"맛있어요!","z":"好吃！","h":"mashisseoyo 连读成\"马西索哟\""},{"s":"덜 맵게 해 주세요.","z":"请做得不那么辣。","h":"deol 轻读"}]},{"id":"ko-a1-c2-l2","title":"시간·요일 时间与星期","subtitle":"看时间、约时间","icon":"⏰","minutes":13,"vocab":[{"t":"지금","r":"jigeum","z":"现在","ex":"지금 몇 시예요?","ext":"现在几点？"},{"t":"시","r":"si","z":"……点钟","ex":"아홉 시예요.","ext":"九点。"},{"t":"반","r":"ban","z":"……点半","ex":"아홉 시 반이에요.","ext":"九点半。"},{"t":"월요일","r":"woryoil","z":"星期一","ex":"월요일에 만나요.","ext":"周一见。"},{"t":"쉬다","r":"swida","z":"休息","ex":"오늘은 쉬어요.","ext":"今天休息。"},{"t":"만나다","r":"mandada","z":"见面","ex":"역에서 만나요.","ext":"在车站见。"}],"grammar":{"t":"时间表达与「에」","exp":"问：지금 몇 시예요?\n答：숫자 + 시（点）+ 분（分）/ 반（半）→ 세 시 반이에요.\n时间点/星期后加 에：세 시에 만나요. 월요일에 가요.\n注意：셋 → 세 시（三点特殊形）、넷 → 네 시。","exs":[{"q":"지금 몇 ___예요?","o":["시","분","일"],"a":0,"tip":"몇 시 几点"},{"q":"세 ___ 반이에요.（三点半）","o":["시","분","초"],"a":0,"tip":"点数 + 시"},{"q":"월요일___ 만나요.","o":["에","에서","을"],"a":0,"tip":"时间点用 에"},{"q":"「四点」的正确读法：","o":["네 시","넷 시","사 시"],"a":0,"tip":"固有词 넷 → 네 시"}]},"listening":[{"s":"지금 몇 시예요?","z":"现在几点？","m":"choice"},{"s":"아홉 시 반이에요.","z":"九点半。","m":"choice"},{"s":"월요일에 만나요.","z":"周一见。","m":"choice"}],"speaking":[{"s":"지금 몇 시예요?","z":"现在几点？","h":"myeot si 连读收轻"},{"s":"두 시에 만나요.","z":"两点见。","h":"du si 中间不留空"},{"s":"오늘은 쉬어요.","z":"今天休息。","h":"swieoyo 连读\"秀奥哟\""}]},{"id":"ko-a1-c2-l3","title":"가족 家人与称呼","subtitle":"介绍你的家人","icon":"👨‍👩‍👧","minutes":13,"vocab":[{"t":"가족","r":"gajok","z":"家人","ex":"가족은 네 명이에요.","ext":"家里有四口人。"},{"t":"아버지","r":"abeoji","z":"爸爸","ex":"아버지는 회사원이에요.","ext":"我爸爸是公司职员。"},{"t":"어머니","r":"eomeoni","z":"妈妈","ex":"어머니는 요리를 좋아해요.","ext":"我妈妈喜欢做菜。"},{"t":"형 / 누나","r":"hyeong / nuna","z":"哥哥 / 姐姐（男生称呼）","ex":"형은 대학생이에요.","ext":"我哥哥是大学生。"},{"t":"동생","r":"dongsaeng","z":"弟弟/妹妹","ex":"동생이 둘 있어요.","ext":"我有两个弟妹。"},{"t":"좋아하다","r":"joahada","z":"喜欢","ex":"음악을 좋아해요.","ext":"喜欢音乐。"}],"grammar":{"t":"「-이/가 있어요」：有……","exp":"名词 + 이/가 있어요＝有：동생이 있어요.（有弟弟/妹妹。）\n有收音 + 이，无收音 + 가 → 형이 있어요 / 누나가 있어요。\n否定没有：없어요 → 시간이 없어요.（没时间。）\n喜欢对象用 을/를：음악을 좋아해요.","exs":[{"q":"동생___ 있어요.","o":["이","가","을"],"a":0,"tip":"생 有收音 → 이"},{"q":"누나___ 있어요.","o":["가","이","는"],"a":0,"tip":"나 无收音 → 가"},{"q":"시간이 ___요.（没时间）","o":["없어","있어","좋아"],"a":0,"tip":"없어요＝没有"},{"q":"음악___ 좋아해요.","o":["을","이","에"],"a":0,"tip":"악 有收音 → 을"}]},"listening":[{"s":"가족은 네 명이에요.","z":"家里有四口人。","m":"choice"},{"s":"동생이 둘 있어요.","z":"我有两个弟妹。","m":"choice"},{"s":"어머니는 요리를 좋아해요.","z":"我妈妈喜欢做菜。","m":"choice"}],"speaking":[{"s":"가족은 네 명이에요.","z":"家里四口人。","h":"myeong 收音 ng 保留"},{"s":"음악을 좋아해요.","z":"我喜欢音乐。","h":"joaha- 连读\"瓦\""},{"s":"우리 가족을 사랑해요.","z":"我爱我的家人。","h":"saranghae 经典句"}]}]},{"id":"ko-a2-c1","lang":"ko","level":"A2","icon":"🚌","title":"여행 한국어 · 旅行韩语","subtitle":"机场地铁、酒店、问路，首尔自由行","lessons":[{"id":"ko-a2-c1-l1","title":"공항과 지하철 机场与地铁","subtitle":"交通出行表达","icon":"🚇","minutes":15,"vocab":[{"t":"표","r":"pyo","z":"票","ex":"서울까지 표 한 장 주세요.","ext":"请给我一张到首尔的票。"},{"t":"지하철","r":"jihacheol","z":"地铁","ex":"지하철 2호선을 타세요.","ext":"请乘坐地铁2号线。"},{"t":"환승","r":"hwanseung","z":"换乘","ex":"여기서 환승해요.","ext":"在这里换乘。"},{"t":"몇 번 출구","r":"myeot beon chulgu","z":"几号出口","ex":"몇 번 출구로 나가요?","ext":"从几号出口出去？"},{"t":"늦다","r":"neutda","z":"迟到/晚点","ex":"버스가 늦어요.","ext":"公交晚点了。"},{"t":"짐","r":"jim","z":"行李","ex":"짐을 맡기고 싶어요.","ext":"我想寄存行李。"}],"grammar":{"t":"「-(으)로」与「-고 싶어요」","exp":"方向/手段用 (으)로：2호선으로 가요.（坐2号线去。）有收音+으로，无收音+로。\n想做：짐을 맡기고 싶어요.（想寄存行李。）\n请求：-(으)세요 → 타세요.（请乘坐。）","exs":[{"q":"지하철 2호선___ 타세요.","o":["을","를","이"],"a":0,"tip":"선 有收音 → 을"},{"q":"여기서___ 나가요.（从3号出口）","o":["3번 출구로","3번 출구가","3번 출구도"],"a":0,"tip":"出口+로 表经由"},{"q":"짐을 맡기___ 싶어요.","o":["고","아서","는데"],"a":0,"tip":"고 싶어요 表愿望"},{"q":"「请乘坐」的说法：","o":["타세요","타워요","탔어요"],"a":0,"tip":"-(으)세요 表请求"}]},"listening":[{"s":"서울까지 표 한 장 주세요.","z":"请给我一张到首尔的票。","m":"type"},{"s":"여기서 환승해요.","z":"在这里换乘。","m":"type"},{"s":"몇 번 출구로 나가요?","z":"从几号出口出去？","m":"type"}],"speaking":[{"s":"지하철역이 어디예요?","z":"地铁站在哪里？","h":"jihacheollyeok 收音连读"},{"s":"이 버스 시청에 가요?","z":"这趟公交去市政厅吗？","h":"singcheong 收音清脆"},{"s":"짐을 여기에 두고 싶어요.","z":"我想把行李放这里。","h":"dugo 中间不停顿"}]},{"id":"ko-a2-c1-l2","title":"호텔에 머물다 酒店住宿","subtitle":"入住与需求沟通","icon":"🏨","minutes":15,"vocab":[{"t":"예약","r":"yeyak","z":"预约","ex":"예약했어요.","ext":"我已经预约了。"},{"t":"체크인","r":"chekeuin","z":"入住","ex":"체크인 부탁드립니다.","ext":"麻烦办理入住。"},{"t":"방","r":"bang","z":"房间","ex":"조용한 방을 주세요.","ext":"请给我安静的房间。"},{"t":"빈 방","r":"bin bang","z":"空房","ex":"내일 빈 방 있어요?","ext":"明天有空房吗？"},{"t":"묵다","r":"mukda","z":"住宿","ex":"이틀 묵을 거예요.","ext":"会住两晚。"},{"t":"맡기다","r":"matgida","z":"寄存","ex":"짐을 프론트에 맡겼어요.","ext":"行李寄存在前台了。"}],"grammar":{"t":"过去时「-았/었어요」与「-겠어요」","exp":"过去时：词干 + 았/었어요。阳性元音 + 았（찾다→찾았어요），阴性 + 었（예약하다→예약했어요）。\n futuro/推测：-(으)ㄹ 거예요 → 묵을 거예요.（会住。）\n 부탁드립니다＝拜托了（正式）。","exs":[{"q":"예약___.","o":["했어요","해요","하겠어요"],"a":0,"tip":"하다 → 했어요 过去"},{"q":"이틀 묵___ 거예요.","o":["을","고","어서"],"a":0,"tip":"묵다 → 묵을 거예요"},{"q":"짐을 프론트에 맡___.","o":["겼어요","았어요","었어요"],"a":0,"tip":"맡기다 → 맡겼어요"},{"q":"조용___ 방을 주세요.","o":["한","하다","해요"],"a":0,"tip":"조용하다 → 조용한"}]},"listening":[{"s":"예약했어요.","z":"我预约了。","m":"type"},{"s":"조용한 방을 주세요.","z":"请给我安静的房间。","m":"type"},{"s":"내일 빈 방 있어요?","z":"明天有空房吗？","m":"type"}],"speaking":[{"s":"체크인 부탁드립니다.","z":"麻烦办理入住。","h":"deurim 收尾正式"},{"s":"몇 시까지 체크아웃해요?","z":"几点退房？","h":"chekeuautsi 外来语连读"},{"s":"침대를 하나 더 주세요.","z":"请再加一张床。","h":"hana deo 语调上扬"}]},{"id":"ko-a2-c1-l3","title":"길 묻기 问路","subtitle":"迷路也不慌","icon":"🗺️","minutes":14,"vocab":[{"t":"길","r":"gil","z":"路","ex":"길을 잃어버렸어요.","ext":"我迷路了。"},{"t":"직진","r":"jikjin","z":"直行","ex":"직진하세요.","ext":"请直走。"},{"t":"오른쪽 / 왼쪽","r":"oreunjjok / oenjjok","z":"右边 / 左边","ex":"모퉁이에서 왼쪽으로 가세요.","ext":"请在拐角左转。"},{"t":"모퉁이","r":"motung-i","z":"拐角","ex":"모퉁이를 돌면 보여요.","ext":"转过拐角就能看到。"},{"t":"가깝다","r":"gakkapda","z":"近","ex":"여기서 가까워요.","ext":"离这里很近。"},{"t":"멀다","r":"meolda","z":"远","ex":"걸어서 멀어요.","ext":"走路有点远。"}],"grammar":{"t":"「-(으)면」与指路句","exp":"条件：(으)면＝\"如果\"：모퉁이를 돌면 보여요.（转过弯就能看到。）\n指路：(으)세요 → 직진하세요. 왼쪽으로 가세요.\n距离：걸어서 멀어요/가까워요（走路远/近）。","exs":[{"q":"모퉁이를 돌___ 보여요.","o":["면","서","면서"],"a":0,"tip":"돌다 → 돌면"},{"q":"___하세요.（请直走）","o":["직진","직진을","직진이"],"a":0,"tip":"직진하다 原形命令"},{"q":"걸어서___요.（很近）","o":["가까워","가깝아","가깝워"],"a":0,"tip":"가깝다 → 가까워요（ㅂ不规则）"},{"q":"왼쪽___ 가세요.","o":["으로","에서","를"],"a":0,"tip":"有收音 + 으로 表方向"}]},"listening":[{"s":"길을 잃어버렸어요.","z":"我迷路了。","m":"type"},{"s":"직진하세요.","z":"请直走。","m":"type"},{"s":"걸어서 멀어요.","z":"走路有点远。","m":"type"}],"speaking":[{"s":"죄송한데, 길 좀 물을게요.","z":"不好意思，我问个路。","h":"de 收音缓冲礼貌"},{"s":"여기서 어떻게 가요?","z":"从这里怎么走？","h":"eotteoke 连读\"奥托开\""},{"s":"알려 주셔서 감사합니다!","z":"谢谢您的指点！","h":"allyeoseo 连读流畅"}]}]},{"id":"ko-b1-c1","lang":"ko","level":"B1","icon":"🏢","title":"비즈니스 한국어 · 职场韩语","subtitle":"敬语、会议与邮件，站稳韩企","lessons":[{"id":"ko-b1-c1-l1","title":"인사와 존댓말 寒暄与敬语","subtitle":"职场第一印象","icon":"🙇","minutes":16,"vocab":[{"t":"안녕하십니까","r":"annyeonghasimnikka","z":"您好（最正式）","ex":"처음 뵙겠습니다. 안녕하십니까?","ext":"初次见面，您好。"},{"t":"감사드립니다","r":"gamsadeurimnida","z":"感谢（正式）","ex":"협조에 감사드립니다.","ext":"感谢您的配合。"},{"t":"실례합니다","r":"sillyehamnida","z":"打扰了","ex":"실례합니다만, 이름이요?","ext":"失礼了，请问您贵姓？"},{"t":"검토하다","r":"geomtohada","z":"研究/审阅","ex":"검토해 보겠습니다.","ext":"我会研究看看。"},{"t":"알겠습니다","r":"algetseumnida","z":"明白了","ex":"네, 알겠습니다.","ext":"好的，明白了。"},{"t":"번거롭게 하다","r":"beongeoreopge hada","z":"添麻烦","ex":"번거롭게 해서 죄송합니다.","ext":"添麻烦了，抱歉。"}],"grammar":{"t":"합쇼체「-ㅂ니다/습니다」","exp":"最正式结尾：有收音 + 습니다，无收音 + ㅂ니다。\n→ 감사합니다 / 알겠습니다 / 검토하겠습니다。\n自谦动词：드리다（给）、뵙다（见）→ 회장님을 뵙겠습니다.\n疑问同样用 -ㅂ니까? → 알겠습니까?","exs":[{"q":"네, 알겠___.","o":["습니다","어요","는다"],"a":0,"tip":"겠 + 습니다"},{"q":"협조에 감사___니다.","o":["드리","합니다","드립"],"a":1,"tip":"감사드리다 → 감사드립니다"},{"q":"회장님을 뵙___.","o":["겠습니다","습니다요","어요"],"a":0,"tip":"뵙다 谦让语"},{"q":"검토해 보___.","o":["겠습니다","세요","아요"],"a":0,"tip":"보겠습니다 表\"我会试着\""}]},"listening":[{"s":"협조에 감사드립니다.","z":"感谢您的配合。","m":"type"},{"s":"네, 알겠습니다.","z":"好的，明白了。","m":"type"},{"s":"번거롭게 해서 죄송합니다.","z":"添麻烦了，抱歉。","m":"type"}],"speaking":[{"s":"안녕하십니까?","z":"您好（最正式）。","h":"simnikka 鼻腔收尾"},{"s":"잘 부탁드립니다.","z":"请多多关照。","h":"deurim 中间连贯"},{"s":"다시 한번 말씀해 주시겠어요?","z":"能再说一遍吗？","h":"malssumhae ㅅ音弱化"}]},{"id":"ko-b1-c1-l2","title":"회의에서 발표 会议发言","subtitle":"有条理地表达意见","icon":"📊","minutes":16,"vocab":[{"t":"안건","r":"angeon","z":"议题","ex":"안건에 대해 설명드리겠습니다.","ext":"我来解释一下议题。"},{"t":"의견","r":"uigyeon","z":"意见","ex":"간단히 의견을 말씀드리겠습니다.","ext":"请允许我简单说下意见。"},{"t":"찬성","r":"chanseong","z":"赞成","ex":"이 안건에 찬성합니다.","ext":"我赞成这个议题。"},{"t":"반대","r":"bandae","z":"反对","ex":"죄송하지만 반대합니다.","ext":"抱歉，我反对。"},{"t":"확인하다","r":"hwaginhada","z":"确认","ex":"다시 한번 확인하겠습니다.","ext":"我会再次确认。"},{"t":"결정하다","r":"gyeoljeonghada","z":"决定","ex":"오늘 안에 결정합시다.","ext":"今天之内定下来吧。"}],"grammar":{"t":"委婉意见与「-드리다」","exp":"缓冲语开头：죄송하지만／실례지만（不好意思，但是……）。\n-아/어 드리다＝为对方做（谦让）：설명해 드리겠습니다.（我来为您说明。）\n提议：-(으)ㅂ시다 → 결정합시다.（决定吧！）","exs":[{"q":"설명해 ___겠습니다.（为您说明）","o":["드리","주","봐"],"a":0,"tip":"드리다 更正式"},{"q":"죄송하지만 ___합니다.（反对）","o":["반대","찬성","확인"],"a":0,"tip":"缓冲后接 반대"},{"q":"오늘 안에 결정___.","o":["합시다","해요","합니다"],"a":0,"tip":"합시다 表提议"},{"q":"간단히 의견을 ___드리겠습니다.","o":["말씀","말","말하"],"a":0,"tip":"말씀드리다 固定谦让"}]},"listening":[{"s":"간단히 의견을 말씀드리겠습니다.","z":"请允许我简单说下意见。","m":"type"},{"s":"죄송하지만 반대합니다.","z":"抱歉，我反对。","m":"type"},{"s":"다시 한번 확인하겠습니다.","z":"我会再次确认。","m":"type"}],"speaking":[{"s":"제 생각은 조금 다릅니다.","z":"我的想法稍有不同。","h":"saenggak 双 kk 紧音"},{"s":"진행해도 괜찮겠습니까?","z":"这样可以推进吗？","h":"gwaenchankeum 收音连读"},{"s":"오늘 회의는 여기까지 하겠습니다.","z":"今天的会议到此为止。","h":"yeogikkaji 收音利落"}]},{"id":"ko-b1-c1-l3","title":"비즈니스 이메일 商务邮件","subtitle":"从标题到落款","icon":"✉️","minutes":16,"vocab":[{"t":"첨부하다","r":"cheombuhada","z":"附上（附件）","ex":"자료를 첨부했습니다.","ext":"已附上资料。"},{"t":"확인 부탁드립니다","r":"hwagin butakdeurimnida","z":"烦请确认","ex":"자료 확인 부탁드립니다.","ext":"烦请确认资料。"},{"t":"회신","r":"hoesin","z":"回信","ex":"회신 기다리겠습니다.","ext":"静候回复。"},{"t":"연락드리다","r":"yeollakdeurida","z":"联系（敬语）","ex":"추가로 연락드리겠습니다.","ext":"我会再联系您。"},{"t":"협조","r":"hyeopjo","z":"配合/协助","ex":"협조 감사드립니다.","ext":"感谢配合。"},{"t":"번창하세요","r":"beonchanghaseyo","z":"生意兴隆（信末祝语）","ex":"하시는 일 모두 번창하세요.","ext":"祝您诸事兴隆。"}],"grammar":{"t":"邮件套语与「-아/어 주시기 바랍니다」","exp":"正式请求：-아/어 주시기 바랍니다（恳请～）→ 확인해 주시기 바랍니다.\n开头：안녕하십니까?／잘 지내셨는지요.\n结尾：회신 기다리겠습니다.／번창하세요.","exs":[{"q":"확인해 주시기 ___니다.","o":["바랍","합니다","싶습"],"a":0,"tip":"바랍니다 恳请套语"},{"q":"자료를 첨부___.","o":["했습니다","해요","하겠습니다"],"a":0,"tip":"했습니다 表已完成"},{"q":"회신 기다___습니다.","o":["리겠","할","하"],"a":0,"tip":"기다리겠습니다"},{"q":"추가로 연락___겠습니다.","o":["드리","주","하"],"a":0,"tip":"연락드리다 谦让"}]},"listening":[{"s":"자료를 첨부했습니다.","z":"已附上资料。","m":"type"},{"s":"자료 확인 부탁드립니다.","z":"烦请确认资料。","m":"type"},{"s":"회신 기다리겠습니다.","z":"静候回复。","m":"type"}],"speaking":[{"s":"메일 확인 부탁드립니다.","z":"麻烦查看邮件。","h":"buthakdeurimnida 一气呵成"},{"s":"바쁘신 와중에 감사합니다.","z":"百忙之中感谢您。","h":"wajunge 连读顺滑"},{"s":"좋은 하루 보내세요.","z":"祝您一天愉快。","h":"boneuseyo 轻快收尾"}]}]}]};</script>
+  <script>/* LingoVerse 离线数据层：localStorage 持久化 + 完整 API 模拟
+   与 server.js 的接口行为保持一致，供单文件离线版使用 */
+window.API = (() => {
+  const TOKEN_KEY = 'lv_token';
+  const DB_KEY = 'lv_offline_db_v1';
+  const SEED = window.__LV_SEED__;
+
+  const LANGUAGES = SEED.languages;
+  const LEVELS = SEED.levels;
+  const ACHIEVEMENTS = SEED.achievements;
+  const COURSES = SEED.courses;
+
+  const LESSONS = {}, COURSE_OF = {}, VOCAB_INDEX = {};
+  for (const c of COURSES) {
+    for (const l of c.lessons) {
+      LESSONS[l.id] = l;
+      COURSE_OF[l.id] = c;
+      VOCAB_INDEX[l.id] = (l.vocab || []).map(v => ({ term: v.t, lang: c.lang }));
+    }
+  }
+  const LANG_MAP = Object.fromEntries(LANGUAGES.map(l => [l.code, l]));
+  const ACH_MAP = Object.fromEntries(ACHIEVEMENTS.map(a => [a.id, a]));
+
+  /* ---------------- 工具 ---------------- */
+  const pad = n => String(n).padStart(2, '0');
+  const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+  const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+  const nowISO = () => new Date().toISOString();
+
+  const K = [
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+  ];
+  const rotr = (x, n) => (x >>> n) | (x << (32 - n));
+  function sha256(msg) {
+    const bytes = new TextEncoder().encode(msg);
+    const blocks = new Uint8Array((Math.floor((bytes.length + 8) / 64) + 1) * 64);
+    blocks.set(bytes);
+    blocks[bytes.length] = 0x80;
+    const dv = new DataView(blocks.buffer);
+    const bitLen = bytes.length * 8;
+    dv.setUint32(blocks.length - 4, bitLen >>> 0);
+    dv.setUint32(blocks.length - 8, Math.floor(bitLen / 4294967296));
+    const H = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+    const w = new Uint32Array(64);
+    for (let off = 0; off < blocks.length; off += 64) {
+      for (let i = 0; i < 16; i++) w[i] = dv.getUint32(off + i * 4);
+      for (let i = 16; i < 64; i++) {
+        const s0 = rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ (w[i - 15] >>> 3);
+        const s1 = rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ (w[i - 2] >>> 10);
+        w[i] = (w[i - 16] + s0 + w[i - 7] + s1) >>> 0;
+      }
+      let [a, b, c, d, e, f, g, h] = H;
+      for (let i = 0; i < 64; i++) {
+        const S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25);
+        const ch = (e & f) ^ (~e & g);
+        const t1 = (h + S1 + ch + K[i] + w[i]) >>> 0;
+        const S0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22);
+        const maj = (a & b) ^ (a & c) ^ (b & c);
+        const t2 = (S0 + maj) >>> 0;
+        h = g; g = f; f = e; e = (d + t1) >>> 0;
+        d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+      }
+      H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+      H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+    }
+    return H.map(x => x.toString(16).padStart(8, '0')).join('');
+  }
+  function randomHex(len) {
+    const a = new Uint8Array(len);
+    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(a);
+    else for (let i = 0; i < len; i++) a[i] = Math.floor(Math.random() * 256);
+    return Array.from(a, b => b.toString(16).padStart(2, '0')).join('');
+  }
+  function hashPassword(pwd, salt) {
+    let h = salt + ':' + pwd;
+    for (let i = 0; i < 600; i++) h = sha256(h);
+    return h;
+  }
+  function makeCredentials(pwd) {
+    const salt = randomHex(12);
+    return { salt, passwordHash: hashPassword(pwd, salt) };
+  }
+
+  /* ---------------- 存储 ---------------- */
+  const memory = {};
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return memory[k] ?? null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch { memory[k] = v; } },
+    del(k) { try { localStorage.removeItem(k); } catch { delete memory[k]; } },
+  };
+  const getToken = () => store.get(TOKEN_KEY);
+  const setToken = t => t ? store.set(TOKEN_KEY, t) : store.del(TOKEN_KEY);
+
+  let db = null;
+  function emptyDb() {
+    return { users: [], tokens: {}, progress: {}, posts: [], nextIds: { user: 1, post: 1, comment: 1 } };
+  }
+  function save() { store.set(DB_KEY, JSON.stringify(db)); }
+  function nextId(kind) { const id = db.nextIds[kind] || 1; db.nextIds[kind] = id + 1; save(); return id; }
+
+  function newProgress() {
+    return {
+      xp: 0, streak: 0, lastActive: null, daily: [],
+      lessons: {}, vocab: {},
+      counts: { completions: 0, perfect: 0, speak90: 0, listen90: 0 },
+      achievements: {},
+    };
+  }
+
+  function seedDatabase() {
+    db = emptyDb();
+    const cred = makeCredentials('demo1234');
+    db.users.push({
+      id: 1, username: '小鱼同学', email: 'demo@lingoverse.app', avatar: '🐟',
+      targetLanguage: 'en', dailyGoal: 50, createdAt: nowISO(), ...cred,
+    });
+    const mates = [
+      { username: '东京速递员', email: 'tokyo@demo.app', avatar: '🗾' },
+      { username: 'SeoulRain', email: 'seoul@demo.app', avatar: '🌧️' },
+    ];
+    mates.forEach((m, i) => {
+      db.users.push({ id: i + 2, ...m, targetLanguage: i ? 'ko' : 'ja', dailyGoal: 50, createdAt: nowISO(), ...makeCredentials(randomHex(8)) });
+    });
+    db.nextIds.user = 4;
+
+    const p = db.progress[1] = newProgress();
+    p.lessons = {
+      'en-a1-c1-l1': { scores: { vocab: 92, grammar: 88, listening: 85, speaking: 76 }, completedAt: daysAgo(6), times: 1 },
+      'en-a1-c1-l2': { scores: { vocab: 85, grammar: 90, listening: 80, speaking: 72 }, completedAt: daysAgo(5), times: 1 },
+      'en-a1-c1-l3': { scores: { vocab: 88, grammar: 84, listening: 90, speaking: 78 }, completedAt: daysAgo(4), times: 1 },
+      'ja-a1-c1-l1': { scores: { vocab: 80, grammar: 75, listening: 70, speaking: 65 }, completedAt: daysAgo(2), times: 1 },
+      'ko-a1-c1-l1': { scores: { vocab: 95, grammar: 90, listening: 88, speaking: 82 }, completedAt: daysAgo(1), times: 1 },
+    };
+    p.counts.completions = 5; p.counts.listen90 = 1;
+    for (const lid of Object.keys(p.lessons)) for (const v of VOCAB_INDEX[lid]) p.vocab[v.lang + ':' + v.term] = true;
+    p.xp = 322; p.streak = 4; p.lastActive = daysAgo(1);
+    p.daily = [
+      { d: daysAgo(6), xp: 55 }, { d: daysAgo(5), xp: 48 }, { d: daysAgo(4), xp: 52 },
+      { d: daysAgo(2), xp: 42 }, { d: daysAgo(1), xp: 60 }, { d: daysAgo(9), xp: 65 },
+    ];
+    p.achievements = { first_lesson: daysAgo(6), lessons_5: daysAgo(1), streak_3: daysAgo(2) };
+
+    const now = Date.now(), iso = h => new Date(now - h * 3600e3).toISOString();
+    db.posts = [
+      { id: 1, userId: 2, lang: 'ja', title: '五十音记不住？我的平假名记忆法', content: '把每个假名配一个具体画面：「あ」像一位伸懒腰的阿姨…睡前默写一遍，一周就熟了。评论区交流呀！', likes: [1, 3], comments: [{ id: 1, userId: 1, content: '这个方法好用！昨晚试了记住了三个。', createdAt: iso(5) }], createdAt: iso(26) },
+      { id: 2, userId: 3, lang: 'ko', title: '追《请回答1988》学韩语，双倍快乐', content: '第一遍看剧情，第二遍跟读台词。德善的「어머」我都条件反射了哈哈。想组队打卡的举手！', likes: [1, 2], comments: [{ id: 2, userId: 1, content: '举手！我从 A1-1 开始追。', createdAt: iso(3) }], createdAt: iso(20) },
+      { id: 3, userId: 1, lang: 'en', title: '连续学习 4 天啦，坚持打卡', content: '以前背单词总是三天打鱼两天晒网，现在每天 50 XP 的小目标让我坚持下来了。大家也定个小目标试试！', likes: [2, 3], comments: [], createdAt: iso(10) },
+      { id: 4, userId: 2, lang: 'ja', title: '敬语好难，有什么顺口的方法吗？', content: '「いたします」「おります」总是搞混……有前辈分享一下记忆口诀吗？', likes: [1], comments: [], createdAt: iso(4) },
+    ];
+    db.nextIds.post = 5; db.nextIds.comment = 3;
+    save();
+  }
+
+  function load() {
+    if (db) return db;
+    const raw = store.get(DB_KEY);
+    if (raw) {
+      try { db = JSON.parse(raw); } catch { db = null; }
+    }
+    if (!db) { seedDatabase(); return db; }
+    const empty = emptyDb();
+    for (const k of Object.keys(empty)) if (db[k] === undefined) db[k] = empty[k];
+    return db;
+  }
+
+  /* ---------------- 进度逻辑 ---------------- */
+  function getProgress(userId) {
+    const d = load();
+    if (!d.progress[userId]) d.progress[userId] = newProgress();
+    return d.progress[userId];
+  }
+  function addXp(p, amount) {
+    const t = todayStr();
+    p.xp += amount;
+    const rec = p.daily.find(e => e.d === t);
+    if (rec) rec.xp += amount; else p.daily.push({ d: t, xp: amount });
+    if (p.lastActive !== t) {
+      p.streak = (p.lastActive === daysAgo(1)) ? p.streak + 1 : 1;
+      p.lastActive = t;
+    }
+    p.daily = p.daily.slice(-60);
+  }
+  const levelFromXp = xp => Math.floor(Math.sqrt(xp / 40)) + 1;
+  const wordsLearned = p => Object.keys(p.vocab).length;
+
+  function checkAchievements(p, userId) {
+    const unlocked = [];
+    const give = id => { if (!p.achievements[id]) { p.achievements[id] = nowISO(); unlocked.push(ACH_MAP[id]); } };
+    const c = p.counts, w = wordsLearned(p);
+    if (c.completions >= 1) give('first_lesson');
+    if (c.completions >= 5) give('lessons_5');
+    if (c.completions >= 15) give('lessons_15');
+    if (p.xp >= 500) give('xp_500');
+    if (p.xp >= 2000) give('xp_2000');
+    if (p.streak >= 3) give('streak_3');
+    if (p.streak >= 7) give('streak_7');
+    if (w >= 50) give('vocab_50');
+    if (c.perfect >= 1) give('perfect_lesson');
+    if (c.speak90 >= 3) give('speaker');
+    if (c.listen90 >= 3) give('listener');
+    if (userId && load().posts.some(x => x.userId === userId)) give('social_1');
+    return unlocked;
+  }
+
+  function lessonLangStats(p, lang) {
+    const skills = { vocab: [], grammar: [], listening: [], speaking: [] };
+    let done = 0, total = 0;
+    for (const c of COURSES) {
+      if (c.lang !== lang) continue;
+      for (const l of c.lessons) {
+        total++;
+        const rec = p.lessons[l.id];
+        if (rec) {
+          done++;
+          skills.vocab.push(rec.scores.vocab);
+          skills.grammar.push(rec.scores.grammar);
+          skills.listening.push(rec.scores.listening);
+          skills.speaking.push(rec.scores.speaking);
+        }
+      }
+    }
+    const avg = a => a.length ? Math.round(a.reduce((x, y) => x + y, 0) / a.length) : null;
+    return {
+      lessonsDone: done, lessonsTotal: total,
+      skills: { vocab: avg(skills.vocab), grammar: avg(skills.grammar), listening: avg(skills.listening), speaking: avg(skills.speaking) },
+      words: Object.keys(p.vocab).filter(k => k.startsWith(lang + ':')).length,
+    };
+  }
+  function progressSummary(p) {
+    return {
+      xp: p.xp, level: levelFromXp(p.xp), streak: p.streak,
+      todayXp: (p.daily.find(e => e.d === todayStr()) || { xp: 0 }).xp,
+      wordsLearned: wordsLearned(p), completions: p.counts.completions,
+    };
+  }
+
+  /* ---------------- 会话 ---------------- */
+  function currentUser() {
+    const token = getToken();
+    if (!token) return null;
+    const d = load();
+    const rec = d.tokens[token];
+    if (!rec || (rec.exp && Date.now() > rec.exp)) return null;
+    return d.users.find(u => u.id === rec.userId) || null;
+  }
+  function issueToken(userId) {
+    const token = randomHex(24);
+    load().tokens[token] = { userId, exp: Date.now() + 30 * 86400e3 };
+    save();
+    return token;
+  }
+  function publicUser(u) {
+    return { id: u.id, username: u.username, avatar: u.avatar, targetLanguage: u.targetLanguage, dailyGoal: u.dailyGoal };
+  }
+  function fail(code, msg) {
+    if (code === 401 && getToken()) {
+      setToken(null);
+      window.App && window.App.onAuthLost && window.App.onAuthLost();
+    }
+    throw new Error(msg);
+  }
+
+  /* ---------------- 接口实现 ---------------- */
+  function api(method, pathname, body, query) {
+    const user = currentUser();
+
+    if (method === 'POST' && pathname === '/api/auth/register') {
+      const { username, email, password } = body;
+      if (!username || !email || !password) return fail(400, '请填写完整信息');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail(400, '邮箱格式不正确');
+      if (String(password).length < 6) return fail(400, '密码至少 6 位');
+      if (String(username).length > 20) return fail(400, '用户名过长');
+      const d = load();
+      if (d.users.some(u => u.email === email)) return fail(409, '该邮箱已注册');
+      const avatars = ['🐣', '🦊', '🐼', '🦉', '🐳', '🦄', '🐝', '🐙', '🌸', '🚀'];
+      const u = {
+        id: nextId('user'), username, email, avatar: avatars[d.users.length % avatars.length],
+        targetLanguage: 'en', dailyGoal: 50, createdAt: nowISO(), ...makeCredentials(password),
+      };
+      d.users.push(u);
+      d.progress[u.id] = newProgress();
+      save();
+      return { status: 201, data: { token: issueToken(u.id), user: publicUser(u) } };
+    }
+
+    if (method === 'POST' && pathname === '/api/auth/login') {
+      const { email, password } = body;
+      const d = load();
+      const u = d.users.find(x => x.email === email);
+      if (!u || u.passwordHash !== hashPassword(password || '', u.salt)) return fail(401, '邮箱或密码不正确');
+      return { status: 200, data: { token: issueToken(u.id), user: publicUser(u) } };
+    }
+
+    if (method === 'POST' && pathname === '/api/auth/logout') {
+      if (getToken()) { delete load().tokens[getToken()]; save(); }
+      return { status: 200, data: { ok: true } };
+    }
+
+    if (method === 'GET' && pathname === '/api/me') {
+      if (!user) return fail(401, '请先登录');
+      return { status: 200, data: { user: { ...publicUser(user), email: user.email }, progress: progressSummary(getProgress(user.id)) } };
+    }
+
+    if (method === 'PATCH' && pathname === '/api/me') {
+      if (!user) return fail(401, '请先登录');
+      if (body.targetLanguage && LANG_MAP[body.targetLanguage]) user.targetLanguage = body.targetLanguage;
+      if (body.dailyGoal && [30, 50, 100].includes(body.dailyGoal)) user.dailyGoal = body.dailyGoal;
+      if (body.username && String(body.username).trim()) user.username = String(body.username).trim().slice(0, 20);
+      if (body.avatar && String(body.avatar).trim()) user.avatar = String(body.avatar).trim().slice(0, 4);
+      save();
+      return { status: 200, data: { user: publicUser(user) } };
+    }
+
+    if (method === 'GET' && pathname === '/api/catalog') {
+      const p = user ? getProgress(user.id) : null;
+      const courses = COURSES.map(c => ({
+        id: c.id, lang: c.lang, level: c.level, title: c.title, subtitle: c.subtitle, icon: c.icon,
+        lessonCount: c.lessons.length,
+        doneCount: p ? c.lessons.filter(l => p.lessons[l.id]).length : 0,
+      }));
+      return { status: 200, data: { languages: LANGUAGES, levels: LEVELS, courses } };
+    }
+
+    let m = pathname.match(/^\/api\/courses\/([\w-]+)$/);
+    if (method === 'GET' && m) {
+      const course = COURSES.find(c => c.id === m[1]);
+      if (!course) return fail(404, '课程不存在');
+      const p = user ? getProgress(user.id) : null;
+      return {
+        status: 200, data: {
+          course: {
+            id: course.id, lang: course.lang, level: course.level, title: course.title,
+            subtitle: course.subtitle, icon: course.icon,
+            langMeta: LANG_MAP[course.lang], levelMeta: LEVELS[course.level],
+            lessons: course.lessons.map(l => ({
+              id: l.id, title: l.title, subtitle: l.subtitle, icon: l.icon, minutes: l.minutes,
+              completed: !!(p && p.lessons[l.id]),
+              bestScore: p && p.lessons[l.id] ? Math.round((p.lessons[l.id].scores.vocab + p.lessons[l.id].scores.grammar + p.lessons[l.id].scores.listening + p.lessons[l.id].scores.speaking) / 4) : null,
+            })),
+          },
+        },
+      };
+    }
+
+    m = pathname.match(/^\/api\/lessons\/([\w-]+)$/);
+    if (method === 'GET' && m) {
+      const lesson = LESSONS[m[1]];
+      if (!lesson) return fail(404, '课时不存在');
+      const course = COURSE_OF[lesson.id];
+      const p = user ? getProgress(user.id) : null;
+      const idx = course.lessons.findIndex(l => l.id === lesson.id);
+      return {
+        status: 200, data: {
+          lesson: { ...lesson, lang: course.lang, courseTitle: course.title },
+          langMeta: LANG_MAP[course.lang],
+          prev: idx > 0 ? course.lessons[idx - 1].id : null,
+          next: idx < course.lessons.length - 1 ? course.lessons[idx + 1].id : null,
+          best: p && p.lessons[lesson.id] ? p.lessons[lesson.id].scores : null,
+        },
+      };
+    }
+
+    m = pathname.match(/^\/api\/lessons\/([\w-]+)\/complete$/);
+    if (method === 'POST' && m) {
+      if (!user) return fail(401, '请先登录');
+      const lesson = LESSONS[m[1]];
+      if (!lesson) return fail(404, '课时不存在');
+      const s = body.scores || {};
+      const clamp = n => Math.max(0, Math.min(100, Math.round(Number(n) || 0)));
+      const scores = { vocab: clamp(s.vocab), grammar: clamp(s.grammar), listening: clamp(s.listening), speaking: clamp(s.speaking) };
+      const avg = (scores.vocab + scores.grammar + scores.listening + scores.speaking) / 4;
+      const xp = 30 + Math.round(avg / 100 * 30);
+
+      const p = getProgress(user.id);
+      const prev = p.lessons[lesson.id];
+      const firstTime = !prev;
+      const rec = {
+        scores: Object.fromEntries(Object.entries(scores).map(([k, v]) => [k, prev ? Math.max(prev.scores[k], v) : v])),
+        completedAt: nowISO(), times: (prev ? prev.times : 0) + 1,
+        speakerCounted: (prev && prev.speakerCounted) || scores.speaking >= 90,
+        listenCounted: (prev && prev.listenCounted) || scores.listening >= 90,
+      };
+      p.lessons[lesson.id] = rec;
+      if (firstTime) {
+        p.counts.completions++;
+        for (const v of VOCAB_INDEX[lesson.id]) p.vocab[v.lang + ':' + v.term] = true;
+      }
+      if (Object.values(scores).every(v => v >= 90)) p.counts.perfect++;
+      if (scores.speaking >= 90 && !(prev && prev.speakerCounted)) p.counts.speak90++;
+      if (scores.listening >= 90 && !(prev && prev.listenCounted)) p.counts.listen90++;
+      addXp(p, xp);
+      const unlocked = checkAchievements(p, user.id);
+      save();
+      return { status: 200, data: { xpGained: xp, ...progressSummary(p), newAchievements: unlocked, firstTime } };
+    }
+
+    if (method === 'GET' && pathname === '/api/progress') {
+      if (!user) return fail(401, '请先登录');
+      const p = getProgress(user.id);
+      const languages = {};
+      for (const l of LANGUAGES) languages[l.code] = lessonLangStats(p, l.code);
+      const daily = [];
+      for (let i = 6; i >= 0; i--) {
+        const t = daysAgo(i);
+        daily.push({ d: t, xp: (p.daily.find(e => e.d === t) || { xp: 0 }).xp });
+      }
+      return {
+        status: 200, data: {
+          ...progressSummary(p), daily, languages, dailyGoal: user.dailyGoal,
+          achievements: ACHIEVEMENTS.map(a => ({ ...a, unlockedAt: p.achievements[a.id] || null })),
+        },
+      };
+    }
+
+    if (method === 'GET' && pathname === '/api/recommendations') {
+      if (!user) return fail(401, '请先登录');
+      const p = getProgress(user.id);
+      const recs = [];
+      const doneLangs = Object.keys(p.lessons).map(id => COURSE_OF[id].lang);
+      const mainLang = doneLangs[doneLangs.length - 1] || user.targetLanguage || 'en';
+      const langMeta = LANG_MAP[mainLang];
+      const langCourses = COURSES.filter(c => c.lang === mainLang);
+      let nextLesson = null, nextCourse = null;
+      for (const c of langCourses) {
+        for (const l of c.lessons) if (!p.lessons[l.id]) { nextLesson = l; nextCourse = c; break; }
+        if (nextLesson) break;
+      }
+      if (nextLesson) {
+        recs.push({
+          type: 'lesson', lang: mainLang, courseId: nextCourse.id, lessonId: nextLesson.id,
+          title: nextLesson.title, desc: `${nextCourse.title} · ${nextLesson.subtitle}`,
+          icon: nextLesson.icon, reason: `继续你的${langMeta.name}课程，保持连续学习！`,
+        });
+      } else {
+        recs.push({ type: 'congrats', lang: mainLang, icon: '🎉', title: `${langMeta.name}课程全部完成！`, desc: '去课程页看看其他语种，解锁新地图吧', reason: '该语种所有课时已完成' });
+      }
+      const st = lessonLangStats(p, mainLang);
+      const skillNames = { vocab: '单词记忆', grammar: '语法练习', listening: '听力训练', speaking: '口语跟读' };
+      const valid = Object.entries(st.skills).filter(([, v]) => v !== null);
+      if (valid.length) {
+        const [weakSkill, weakScore] = valid.sort((a, b) => a[1] - b[1])[0];
+        if (weakScore < 90) {
+          recs.push({
+            type: 'practice', skill: weakSkill, lang: mainLang,
+            title: skillNames[weakSkill] + '强化',
+            desc: `当前均分 ${weakScore} 分`,
+            icon: { vocab: '🧠', grammar: '✍️', listening: '🎧', speaking: '🎙️' }[weakSkill],
+            reason: `${skillNames[weakSkill]}是你的薄弱项，回到课时重练一遍吧`,
+          });
+        }
+      }
+      const t = todayStr();
+      const todayXp = (p.daily.find(e => e.d === t) || { xp: 0 }).xp;
+      if (todayXp < user.dailyGoal) {
+        recs.push({ type: 'goal', icon: '🎯', title: `今日目标还差 ${user.dailyGoal - todayXp} XP`, desc: '再完成一节课就能达标', reason: `每日目标 ${user.dailyGoal} XP，已完成 ${todayXp}` });
+      } else {
+        recs.push({ type: 'goal', icon: '✅', title: '今日目标已达成！', desc: `今天已获得 ${todayXp} XP，明天见`, reason: '超额完成，休息一下也可以' });
+      }
+      const other = LANGUAGES.find(l => l.code !== mainLang && !lessonLangStats(p, l.code).lessonsDone);
+      if (other) {
+        const firstCourse = COURSES.find(c => c.lang === other.code && c.level === 'A1');
+        recs.push({ type: 'explore', lang: other.code, courseId: firstCourse.id, lessonId: firstCourse.lessons[0].id, icon: other.flag, title: `试试${other.name}？`, desc: firstCourse.title, reason: '多语种学习者记忆效果更好' });
+      }
+      return { status: 200, data: { recommendations: recs, mainLang } };
+    }
+
+    if (method === 'GET' && pathname === '/api/community') {
+      const d = load();
+      let posts = [...d.posts].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      const lang = query.get('lang');
+      if (lang) posts = posts.filter(x => x.lang === lang);
+      const users = Object.fromEntries(d.users.map(u => [u.id, { id: u.id, username: u.username, avatar: u.avatar }]));
+      posts = posts.slice(0, 50).map(x => ({
+        id: x.id, lang: x.lang, title: x.title, content: x.content, createdAt: x.createdAt,
+        author: users[x.userId] || { username: '已注销', avatar: '👤' },
+        likes: x.likes.length, liked: user ? x.likes.includes(user.id) : false,
+        comments: x.comments.map(c => ({ ...c, author: users[c.userId] || { username: '已注销', avatar: '👤' } })),
+      }));
+      return { status: 200, data: { posts } };
+    }
+
+    if (method === 'POST' && pathname === '/api/community') {
+      if (!user) return fail(401, '请先登录');
+      const { lang, title, content } = body;
+      if (!title || !content) return fail(400, '标题和内容不能为空');
+      const d = load();
+      const post = {
+        id: nextId('post'), userId: user.id,
+        lang: LANG_MAP[lang] ? lang : 'multi',
+        title: String(title).slice(0, 60), content: String(content).slice(0, 2000),
+        likes: [], comments: [], createdAt: nowISO(),
+      };
+      d.posts.unshift(post);
+      const p = getProgress(user.id);
+      const unlocked = checkAchievements(p, user.id);
+      save();
+      return { status: 201, data: { post: { ...post, author: publicUser(user), likes: 0, liked: false, comments: [] }, newAchievements: unlocked } };
+    }
+
+    m = pathname.match(/^\/api\/community\/(\d+)\/like$/);
+    if (method === 'POST' && m) {
+      if (!user) return fail(401, '请先登录');
+      const d = load();
+      const post = d.posts.find(x => x.id === Number(m[1]));
+      if (!post) return fail(404, '帖子不存在');
+      const i = post.likes.indexOf(user.id);
+      if (i >= 0) post.likes.splice(i, 1); else post.likes.push(user.id);
+      save();
+      return { status: 200, data: { likes: post.likes.length, liked: i < 0 } };
+    }
+
+    m = pathname.match(/^\/api\/community\/(\d+)\/comment$/);
+    if (method === 'POST' && m) {
+      if (!user) return fail(401, '请先登录');
+      const d = load();
+      const post = d.posts.find(x => x.id === Number(m[1]));
+      if (!post) return fail(404, '帖子不存在');
+      const content = String(body.content || '').trim();
+      if (!content) return fail(400, '评论不能为空');
+      const comment = { id: nextId('comment'), userId: user.id, content: content.slice(0, 500), createdAt: nowISO() };
+      post.comments.push(comment);
+      save();
+      return { status: 201, data: { comment: { ...comment, author: publicUser(user) } } };
+    }
+
+    if (method === 'GET' && pathname === '/api/achievements') {
+      const p = user ? getProgress(user.id) : null;
+      return {
+        status: 200, data: {
+          achievements: ACHIEVEMENTS.map(a => ({ ...a, unlockedAt: p ? p.achievements[a.id] || null : null })),
+        },
+      };
+    }
+
+    return fail(404, '接口不存在');
+  }
+
+  async function request(method, path, body) {
+    const [pathname, qs] = String(path).split('?');
+    const query = new URLSearchParams(qs || '');
+    await new Promise(r => setTimeout(r, 0));
+    const { data } = api(method, pathname, body || {}, query);
+    return data;
+  }
+
+  return {
+    getToken, setToken,
+    get: p => request('GET', p),
+    post: (p, b) => request('POST', p, b),
+    patch: (p, b) => request('PATCH', p, b),
+  };
+})();
+</script>
+  <script>/* LingoVerse 轻量 SVG 图表 */
+window.Charts = (() => {
+  /* 周活动柱状图：days = [{d:'MM-DD', xp}] */
+  function weekChart(days, goal) {
+    const w = 100, h = 40;
+    const max = Math.max(goal || 50, ...days.map(x => x.xp), 1);
+    const bw = w / days.length * 0.52, gap = w / days.length;
+    let bars = '';
+    days.forEach((x, i) => {
+      const bh = Math.max(x.xp / max * (h - 6), x.xp > 0 ? 4 : 2);
+      const bx = i * gap + (gap - bw) / 2;
+      const fill = x.xp >= (goal || Infinity) ? 'url(#gg)' : (x.xp > 0 ? '#A99BFF' : '#E4E6F2');
+      bars += `<rect x="${bx.toFixed(1)}" y="${(h - bh).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="2.5" fill="${fill}"/>`;
+      bars += `<text x="${(i * gap + gap / 2).toFixed(1)}" y="${h + 8}" font-size="5.2" fill="#9CA0B8" text-anchor="middle">${x.d.slice(5)}</text>`;
+    });
+    const goalY = (h - (goal || 50) / max * (h - 6)).toFixed(1);
+    return `<svg viewBox="0 0 ${w} ${h + 12}" style="width:100%;display:block">
+      <defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6C5CE7"/><stop offset="1" stop-color="#A78BFA"/></linearGradient></defs>
+      <line x1="0" y1="${goalY}" x2="${w}" y2="${goalY}" stroke="#FFB020" stroke-width="0.8" stroke-dasharray="2.5 2.5" opacity="0.8"/>
+      ${bars}</svg>`;
+  }
+
+  /* 进度环：percent 0-100, size px */
+  function ring(percent, size = 74, color = 'url(#rg)', track = '#EEF0F8', label = null) {
+    const r = (size - 10) / 2, c = 2 * Math.PI * r;
+    const p = Math.max(0, Math.min(100, percent));
+    const off = c * (1 - p / 100);
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6C5CE7"/><stop offset="1" stop-color="#A78BFA"/></linearGradient></defs>
+      <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${track}" stroke-width="7"/>
+      <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${color}" stroke-width="7"
+        stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"
+        transform="rotate(-90 ${size / 2} ${size / 2})" style="transition:stroke-dashoffset .8s ease"/>
+      <text x="50%" y="${label ? '46%' : '54%'}" dominant-baseline="middle" text-anchor="middle" font-size="${size * 0.26}" font-weight="800" fill="#1E2235">${Math.round(p)}</text>
+      ${label ? `<text x="50%" y="66%" text-anchor="middle" font-size="${size * 0.14}" fill="#9CA0B8">${label}</text>` : ''}
+    </svg>`;
+  }
+
+  /* 得分环（课程完成页用） */
+  function scoreRing(score, icon, name) {
+    const color = score >= 90 ? '#23B37D' : score >= 60 ? '#FF9F43' : '#F0574F';
+    const r = 34, c = 2 * Math.PI * r;
+    const off = c * (1 - Math.max(0, Math.min(100, score)) / 100);
+    return `<div class="score-ring">
+      <svg width="84" height="84" viewBox="0 0 84 84">
+        <circle cx="42" cy="42" r="${r}" fill="none" stroke="#EEF0F8" stroke-width="8"/>
+        <circle cx="42" cy="42" r="${r}" fill="none" stroke="${color}" stroke-width="8" stroke-linecap="round"
+          stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 42 42)" style="transition:stroke-dashoffset .9s ease"/>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="19" font-weight="800" fill="${color}">${Math.round(score)}</text>
+      </svg>
+      <div class="lbl">${icon} ${name}</div>
+    </div>`;
+  }
+
+  /* 技能条 */
+  function skillBar(name, icon, score) {
+    const color = score >= 90 ? '#23B37D' : score >= 60 ? '#6C5CE7' : '#FF9F43';
+    return `<div class="skill-bar">
+      <div class="sb-head"><span>${icon} ${name}</span><span>${score === null ? '未开始' : score + ' 分'}</span></div>
+      <div class="progress-bar"><div style="width:${score || 0}%;background:${score >= 90 ? 'linear-gradient(90deg,#23B37D,#4ADE9C)' : 'linear-gradient(90deg,#6C5CE7,#A78BFA)'}"></div></div>
+    </div>`;
+  }
+
+  return { weekChart, ring, scoreRing, skillBar };
+})();
+</script>
+  <script>/* LingoVerse 应用核心：路由 / 布局 / 认证 / 落地页 / 仪表盘 */
+window.App = (() => {
+  const { get, post, patch, setToken, getToken } = API;
+
+  const state = { user: null, progress: null, booted: false };
+
+  // ---------- 工具 ----------
+  const $ = sel => document.querySelector(sel);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmtDate = iso => { const d = new Date(iso); return `${d.getMonth() + 1}月${d.getDate()}日 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+  const timeAgo = iso => {
+    const m = Math.floor((Date.now() - new Date(iso)) / 60000);
+    if (m < 1) return '刚刚'; if (m < 60) return m + ' 分钟前';
+    const h = Math.floor(m / 60); if (h < 24) return h + ' 小时前';
+    const d = Math.floor(h / 24); if (d < 30) return d + ' 天前';
+    return fmtDate(iso);
+  };
+  const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+  const todayLabel = () => { const d = new Date(); return `${d.getMonth() + 1}月${d.getDate()}日 星期${weekDays[d.getDay()]}`; };
+
+  function toast(msg, type = '') {
+    const box = $('#toast-box');
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '⚠️' : '💡'}</span>${esc(msg)}`;
+    box.appendChild(el);
+    setTimeout(() => el.remove(), 2900);
+  }
+  function modal(html, opts = {}) {
+    const root = $('#modal-root');
+    const mask = document.createElement('div');
+    mask.className = 'modal-mask';
+    mask.innerHTML = `<div class="modal" style="max-width:${opts.width || 520}px">${html}</div>`;
+    mask.addEventListener('click', e => { if (e.target === mask && !opts.static) close(); });
+    root.appendChild(mask);
+    function close() { mask.remove(); }
+    return { close, el: mask };
+  }
+  const confirmModal = (text, onOk) => {
+    const m = modal(`<h3>确认操作</h3><p style="color:var(--muted);margin-bottom:20px">${esc(text)}</p>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button class="btn-ghost" id="cm-no">取消</button>
+        <button class="btn-primary" id="cm-ok" style="background:linear-gradient(135deg,#F0574F,#FF7B6E)">确定</button>
+      </div>`);
+    m.el.querySelector('#cm-no').onclick = m.close;
+    m.el.querySelector('#cm-ok').onclick = () => { m.close(); onOk(); };
+  };
+
+  // ---------- 语音 ----------
+  function speak(text, lang) {
+    if (!('speechSynthesis' in window)) return toast('当前浏览器不支持语音合成', 'error');
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang || 'en-US';
+    u.rate = 0.85;
+    const voices = speechSynthesis.getVoices().filter(v => v.lang.replace('_', '-').startsWith(u.lang.slice(0, 2)));
+    if (voices.length) u.voice = voices.find(v => v.lang.replace('_', '-') === u.lang) || voices[0];
+    speechSynthesis.speak(u);
+  }
+  if ('speechSynthesis' in window) speechSynthesis.getVoices(); // 预热
+
+  // ---------- 认证 ----------
+  async function loadMe() {
+    if (!getToken()) { state.user = null; state.progress = null; return; }
+    try {
+      const data = await get('/api/me');
+      state.user = data.user; state.progress = data.progress;
+    } catch (e) { state.user = null; }
+  }
+  function onAuthLost() {
+    state.user = null; state.progress = null;
+    renderNav();
+    toast('登录已过期，请重新登录', 'error');
+    location.hash = '#/login';
+  }
+  async function logout() {
+    try { await post('/api/auth/logout'); } catch (e) { /* ignore */ }
+    setToken(null); state.user = null;
+    toast('已退出登录', 'success');
+    location.hash = '#/'; renderNav(); route();
+  }
+
+  // ---------- 导航 ----------
+  function renderNav() {
+    const el = $('#nav-slot');
+    if (!el) return;
+    const u = state.user;
+    const p = state.progress;
+    const cur = (location.hash || '#/').split('?')[0];
+    const link = (href, label) => `<a class="nav-link ${cur === href ? 'active' : ''}" href="${href}">${label}</a>`;
+    el.innerHTML = `
+      <div class="nav">
+        <div class="nav-inner">
+          <a class="nav-logo" href="${u ? '#/' : '#/landing'}"><span class="globe">🌍</span><span>语界 <em>LingoVerse</em></span></a>
+          <div class="nav-links">
+            ${u ? link('#/', '学习首页') + link('#/courses', '分级课程') + link('#/progress', '学习进度') + link('#/community', '学习社区') : ''}
+          </div>
+          <div class="nav-right">
+            ${u ? `
+              <span class="nav-stat" title="连续学习天数">🔥 ${p ? p.streak : 0}</span>
+              <span class="nav-stat xp" title="总经验值">⚡ ${p ? p.xp : 0} XP</span>
+              <div class="nav-user">
+                <div class="nav-avatar" id="nav-avatar">${esc(u.avatar || '🙂')}</div>
+                <div class="nav-menu" id="nav-menu">
+                  <div class="mhead">Lv.${p ? p.level : 1} · ${esc(u.username)}</div>
+                  <a class="mi" href="#/profile">👤 个人设置</a>
+                  <a class="mi" href="#/progress">📊 我的成就</a>
+                  <button class="mi danger" id="btn-logout">🚪 退出登录</button>
+                </div>
+              </div>` : `
+              <a class="btn-login" href="#/login">登录</a>
+              <a class="btn-primary" href="#/register">免费注册</a>`}
+          </div>
+        </div>
+      </div>`;
+    const avatar = el.querySelector('#nav-avatar');
+    if (avatar) {
+      avatar.onclick = e => { e.stopPropagation(); el.querySelector('#nav-menu').classList.toggle('open'); };
+      el.querySelector('#btn-logout').onclick = logout;
+    }
+  }
+  document.addEventListener('click', () => { const m = $('#nav-menu'); if (m) m.classList.remove('open'); });
+
+  // ---------- 路由 ----------
+  const routes = [];
+  const on = (pattern, view) => routes.push([pattern, view]);
+
+  function route() {
+    if (!state.booted) return;
+    const hash = (location.hash || '#/').replace(/^#/, '') || '/';
+    renderNav();
+    window.scrollTo(0, 0);
+    for (const [pattern, view] of routes) {
+      const m = hash.match(pattern);
+      if (m) { view(...m.slice(1)); return; }
+    }
+    location.hash = '#/';
+  }
+  window.addEventListener('hashchange', route);
+
+  async function boot() {
+    await loadMe();
+    state.booted = true;
+    // 未登录访问受限页 → 跳登录
+    const hash = (location.hash || '#/').replace(/^#/, '') || '/';
+    const needAuth = ['/', '/progress', '/community', '/profile'].includes(hash) || hash.startsWith('/courses') || hash.startsWith('/lesson');
+    if (!state.user && needAuth) { location.hash = '#/login'; }
+    route();
+  }
+
+  // ---------- 视图：落地页 ----------
+  function viewLanding() {
+    $('#app').innerHTML = `
+      <div id="nav-slot"></div>
+      <div class="hero">
+        <div class="hero-blob b1"></div><div class="hero-blob b2"></div><div class="hero-blob b3"></div>
+        <div class="hero-inner fade-in">
+          <div class="hero-tag">✨ 沉浸式多语种学习平台</div>
+          <h1>让每一门语言，<br/>都成为你<span class="hl">看世界的窗</span></h1>
+          <p class="lead">英语 · 日语 · 韩语，科学分级课程体系 × 单词记忆 / 语法练习 / 口语跟读 / 听力训练四大互动模块，AI 语音评测助你开口流利说。</p>
+          <div class="hero-cta">
+            <a class="btn-primary" href="#/register">🚀 免费开始学习</a>
+            <a class="btn-ghost" href="#/login">已有账号，直接登录</a>
+          </div>
+          <div class="hero-flags">🇬🇧 🇯🇵 🇰🇷</div>
+        </div>
+      </div>
+      <div class="lang-strip fade-in">
+        <div class="lang-card" style="background:linear-gradient(135deg,#4F8CFF,#6C5CE7)">
+          <span class="courses">12 节课</span><div class="flag">🇬🇧</div><h3>英语 English</h3><div class="en">Hello → 职场邮件</div>
+          <p>从问候语到国际职场表达，覆盖 A1-B1 三个等级，让英语成为你的全球通行证。</p>
+        </div>
+        <div class="lang-card" style="background:linear-gradient(135deg,#FF5D8F,#FF9A62)">
+          <span class="courses">12 节课</span><div class="flag">🇯🇵</div><h3>日语 日本語</h3><div class="en">こんにちは → ビジネス敬語</div>
+          <p>五十音起步，动漫旅行到商务敬语，一站式打通日语听说读写的任督二脉。</p>
+        </div>
+        <div class="lang-card" style="background:linear-gradient(135deg,#12B886,#37C99E)">
+          <span class="courses">12 节课</span><div class="flag">🇰🇷</div><h3>韩语 한국어</h3><div class="en">안녕하세요 → 비즈니스</div>
+          <p>Hangul 一周入门，从追剧追星到韩企面试，把韩流变成你的竞争力。</p>
+        </div>
+      </div>
+      <div class="feature-grid fade-in">
+        <div class="feature"><div class="ic">📚</div><h3>分级课程体系</h3><p>对标 CEFR 欧标 A1-B1，每门课 3-4 节浸入式课时，循序渐进不掉队。</p></div>
+        <div class="feature"><div class="ic">🧠</div><h3>四大互动模块</h3><p>单词卡片、语法闯关、AI 听力训练、口语跟读评测，像玩游戏一样学习。</p></div>
+        <div class="feature"><div class="ic">📈</div><h3>进度追踪</h3><p>XP 经验值、连续打卡、周活动曲线与技能雷达，成长看得见。</p></div>
+        <div class="feature"><div class="ic">🏆</div><h3>社区与成就</h3><p>12 枚成就徽章等你解锁，与全球语伴分享心得、互相激励。</p></div>
+      </div>
+      <div id="nav-slot2" style="display:none"></div>`;
+    renderNav();
+  }
+
+  // ---------- 视图：登录 / 注册 ----------
+  function viewAuth(mode) {
+    const isLogin = mode === 'login';
+    $('#app').innerHTML = `
+      <div id="nav-slot"></div>
+      <div style="min-height:calc(100vh - 62px);display:flex;align-items:center;justify-content:center;padding:30px 16px;background:linear-gradient(160deg,#EEEBFF 0%,#F5F6FB 40%,#E7F6F0 100%)">
+        <div class="card fade-in" style="width:100%;max-width:420px;padding:34px">
+          <div style="text-align:center;margin-bottom:24px">
+            <div style="font-size:2.6rem">${isLogin ? '👋' : '🎉'}</div>
+            <h2 style="margin-top:8px">${isLogin ? '欢迎回来' : '加入语界'}</h2>
+            <p style="color:var(--muted);font-size:0.9rem;margin-top:6px">${isLogin ? '继续你的多语种学习之旅' : '注册即享全部三语种课程'}</p>
+          </div>
+          <form id="auth-form">
+            ${isLogin ? '' : `<div class="field"><label>昵称</label><input name="username" placeholder="给自己起个响亮的名字" maxlength="20" required /></div>`}
+            <div class="field"><label>邮箱</label><input name="email" type="email" placeholder="you@example.com" required /></div>
+            <div class="field"><label>密码</label><input name="password" type="password" placeholder="${isLogin ? '你的密码' : '至少 6 位'}" required /></div>
+            <div class="form-error" id="auth-err"></div>
+            <button class="btn-primary btn-block" type="submit" id="auth-btn">${isLogin ? '登 录' : '注 册 并 开 始'}</button>
+          </form>
+          <p style="text-align:center;margin-top:18px;font-size:0.88rem;color:var(--muted)">
+            ${isLogin ? `还没有账号？<a href="#/register" style="color:var(--primary);font-weight:700">免费注册</a>` : `已有账号？<a href="#/login" style="color:var(--primary);font-weight:700">直接登录</a>`}
+          </p>
+          ${isLogin ? `<div style="margin-top:16px;padding:12px 14px;border-radius:12px;background:#F5F6FB;font-size:0.82rem;color:var(--muted);line-height:1.7">💡 体验演示账号：<b>demo@lingoverse.app</b> / demo1234<br/>已带 4 天连续打卡记录与课程进度</div>` : ''}
+        </div>
+      </div>`;
+    renderNav();
+    $('#auth-form').onsubmit = async e => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const btn = $('#auth-btn'), errEl = $('#auth-err');
+      btn.disabled = true; btn.textContent = '请稍候…'; errEl.textContent = '';
+      try {
+        const data = isLogin
+          ? await post('/api/auth/login', { email: fd.get('email'), password: fd.get('password') })
+          : await post('/api/auth/register', { username: fd.get('username'), email: fd.get('email'), password: fd.get('password') });
+        setToken(data.token);
+        state.user = data.user;
+        await loadMe();
+        toast(isLogin ? `欢迎回来，${data.user.username}！` : `欢迎加入语界，${data.user.username}！`, 'success');
+        location.hash = '#/';
+      } catch (err) {
+        errEl.textContent = err.message;
+        btn.disabled = false; btn.textContent = isLogin ? '登 录' : '注 册 并 开 始';
+      }
+    };
+  }
+
+  // ---------- 视图：学习仪表盘 ----------
+  async function viewDashboard() {
+    $('#app').innerHTML = `<div id="nav-slot"></div><div class="page"><div class="boot-splash" style="min-height:50vh"><div class="spin"></div></div></div>`;
+    renderNav();
+    let rec, prog;
+    try {
+      [rec, prog] = await Promise.all([API.get('/api/recommendations'), API.get('/api/progress')]);
+    } catch (e) { return toast(e.message, 'error'); }
+    const u = state.user, p = state.progress;
+    const mainLang = rec.mainLang;
+    const goalPct = Math.min(100, Math.round(prog.todayXp / prog.dailyGoal * 100));
+    const hour = new Date().getHours();
+    const hello = hour < 6 ? '夜深了' : hour < 11 ? '早上好' : hour < 14 ? '中午好' : hour < 19 ? '下午好' : '晚上好';
+    const recIcon = { lesson: '📖', practice: '💪', goal: '🎯', explore: '🗺️', congrats: '🎉' };
+
+    $('#app').innerHTML = `
+      <div id="nav-slot"></div>
+      <div class="page">
+        <div class="dash-welcome fade-in">
+          <div>
+            <div class="dash-hi">${hello}，<span>${esc(u.username)}</span> ${esc(u.avatar)}</div>
+            <div class="dash-date">${todayLabel()} · 连续学习 ${prog.streak} 天，今天已获得 ${prog.todayXp} XP</div>
+          </div>
+        </div>
+
+        <div class="stat-row fade-in">
+          <div class="stat-card"><div class="ic" style="background:#EEEBFF">⚡</div><div><div class="num">${prog.xp}</div><div class="lbl">总经验 XP</div></div></div>
+          <div class="stat-card"><div class="ic" style="background:#FFF1E3">🔥</div><div><div class="num">${prog.streak} 天</div><div class="lbl">连续打卡</div></div></div>
+          <div class="stat-card"><div class="ic" style="background:#E9FBF3">🧠</div><div><div class="num">${prog.wordsLearned}</div><div class="lbl">已学单词</div></div></div>
+          <div class="stat-card"><div class="ic" style="background:#EAF4FF">📚</div><div><div class="num">${prog.completions}</div><div class="lbl">完成课时</div></div></div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="card fade-in">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h3 style="font-size:1.08rem">🎯 为你推荐</h3>
+              <span style="font-size:0.82rem;color:var(--muted)">基于你的学习行为智能生成</span>
+            </div>
+            <div class="rec-list">
+              ${(() => {
+                const anyLesson = rec.recommendations.find(r => r.lessonId);
+                const hrefOf = r => r.lessonId ? '#/lesson/' + r.lessonId
+                  : r.type === 'practice' && anyLesson ? '#/lesson/' + anyLesson.lessonId : '#/courses';
+                return rec.recommendations.map(r => `
+                <div class="rec-item" data-href="${hrefOf(r)}">
+                  <div class="ric">${r.icon || recIcon[r.type] || '✨'}</div>
+                  <div style="flex:1;min-width:0">
+                    <div class="rt">${esc(r.title)}</div>
+                    <div class="rd">${esc(r.desc || '')}</div>
+                    <div class="rr">${esc(r.reason || '')}</div>
+                  </div>
+                  <span class="go">›</span>
+                </div>`).join('');
+              })()}
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <div class="card fade-in">
+              <h3 style="font-size:1.05rem;margin-bottom:12px">今日目标</h3>
+              <div class="goal-ring-box">
+                ${Charts.ring(goalPct, 108, 'url(#rg)', '#EEF0F8', 'XP')}
+                <div class="ring-num">${prog.todayXp}<span style="font-size:0.9rem;color:var(--muted)"> / ${prog.dailyGoal} XP</span></div>
+                <div class="ring-lbl">${goalPct >= 100 ? '🎉 今日目标已达成！' : goalPct >= 60 ? '马上就完成了，加油！' : '完成一节课即可快速达标'}</div>
+                <a href="#/progress" style="font-size:0.83rem;color:var(--primary);font-weight:700;margin-top:4px">调整目标 ›</a>
+              </div>
+            </div>
+            <div class="card fade-in">
+              <h3 style="font-size:1.05rem;margin-bottom:10px">近 7 天学习热度</h3>
+              <div class="week-chart">${Charts.weekChart(prog.daily, prog.dailyGoal)}</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    renderNav();
+    document.querySelectorAll('.rec-item').forEach(el => el.onclick = () => location.hash = el.dataset.href);
+  }
+
+  // ---------- 注册路由 ----------
+  on(/^\/landing$/, viewLanding);
+  on(/^\/$/, () => (state.user ? viewDashboard() : viewLanding()));
+  on(/^\/login$/, () => viewAuth('login'));
+  on(/^\/register$/, () => viewAuth('register'));
+
+  return {
+    state, boot, route, renderNav, onAuthLost, on,
+    toast, modal, confirmModal, speak, loadMe,
+    esc, timeAgo, fmtDate,
+    get $() { return $; },
+    utils: { esc, timeAgo, fmtDate, toast, modal, confirmModal, speak, $ },
+  };
+})();
+
+window.Views = window.Views || {};
+window.LessonPlayer = window.LessonPlayer || {};
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => App.boot());
+} else {
+  App.boot();
+}
+</script>
+  <script>/* LingoVerse 页面视图：课程 / 进度 / 社区 / 个人 */
+(() => {
+  const { get, post, patch } = API;
+  const { esc, timeAgo, toast, modal, speak, $ } = App.utils;
+  const { on } = App;
+  let currentLang = 'en';
+
+  // ================= 课程目录 =================
+  on(/^\/courses$/, viewCourses);
+  async function viewCourses() {
+    $('#app').innerHTML = `<div id="nav-slot"></div><div class="page"><div class="boot-splash" style="min-height:40vh"><div class="spin"></div></div></div>`;
+    App.renderNav();
+    let data;
+    try { data = await get('/api/catalog'); } catch (e) { return toast(e.message, 'error'); }
+    const { languages, levels, courses } = data;
+
+    function render() {
+      const lang = languages.find(l => l.code === currentLang);
+      const blocks = Object.keys(levels).map(lv => {
+        const list = courses.filter(c => c.lang === currentLang && c.level === lv);
+        if (!list.length) return '';
+        return `<div class="level-block fade-in">
+          <div class="level-head">
+            <span class="level-badge" style="background:linear-gradient(135deg,${lang.color},${lang.color}CC)">${levels[lv].name}</span>
+            <span class="level-name">${levels[lv].desc}</span>
+          </div>
+          <div class="course-grid">
+            ${list.map(c => `
+              <div class="course-card" data-id="${c.id}">
+                <div class="cc-top">
+                  <div class="cc-icon" style="background:${lang.color}1A">${c.icon}</div>
+                  <div style="flex:1;min-width:0">
+                    <h3>${esc(c.title)}</h3>
+                    <div class="cc-sub">${esc(c.subtitle)}</div>
+                  </div>
+                </div>
+                <div class="cc-bottom">
+                  <div class="cc-meta"><span>📖 ${c.lessonCount} 节课</span><span>${c.doneCount}/${c.lessonCount} 已完成</span></div>
+                  <div class="progress-bar ${c.doneCount >= c.lessonCount && c.lessonCount > 0 ? 'done' : ''}">
+                    <div style="width:${c.lessonCount ? c.doneCount / c.lessonCount * 100 : 0}%"></div>
+                  </div>
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+      }).join('');
+
+      $('#app').innerHTML = `
+        <div id="nav-slot"></div>
+        <div class="page">
+          <div class="page-head fade-in">
+            <div>
+              <div class="page-title">📚 分级课程</div>
+              <div class="page-sub">对标 CEFR 欧标 · 选择一门语言开始你的进阶之路</div>
+            </div>
+          </div>
+          <div class="lang-tabs fade-in">
+            ${languages.map(l => `
+              <button class="lang-tab ${l.code === currentLang ? 'active' : ''}" data-lang="${l.code}"
+                style="${l.code === currentLang ? `background:linear-gradient(135deg,${l.color},${l.color}B3)` : ''}">
+                <span style="font-size:1.15rem">${l.flag}</span>${l.name}
+                <span style="opacity:.75;font-weight:600">${l.nativeName}</span>
+              </button>`).join('')}
+          </div>
+          ${blocks}
+        </div>`;
+      App.renderNav();
+      document.querySelectorAll('.lang-tab').forEach(b => b.onclick = () => { currentLang = b.dataset.lang; render(); });
+      document.querySelectorAll('.course-card').forEach(c => c.onclick = () => location.hash = '#/courses/' + c.dataset.id);
+    }
+    render();
+  }
+
+  // ================= 课程详情 =================
+  on(/^\/courses\/([\w-]+)$/, viewCourse);
+  async function viewCourse(id) {
+    $('#app').innerHTML = `<div id="nav-slot"></div><div class="page"><div class="boot-splash" style="min-height:40vh"><div class="spin"></div></div></div>`;
+    App.renderNav();
+    let data;
+    try { data = await get('/api/courses/' + id); } catch (e) { toast(e.message, 'error'); return location.hash = '#/courses'; }
+    const c = data.course;
+    const color = c.langMeta.color;
+    const done = c.lessons.filter(l => l.completed).length;
+    $('#app').innerHTML = `
+      <div id="nav-slot"></div>
+      <div class="page">
+        <a class="back-link fade-in" href="#/courses">‹ 返回课程列表</a>
+        <div class="course-hero fade-in" style="background:linear-gradient(135deg,${color},${color}99 60%,#6C5CE7)">
+          <span class="lvl">${c.levelMeta.name}</span>
+          <div class="flag">${c.langMeta.flag}</div>
+          <h2>${esc(c.title)}</h2>
+          <p>${esc(c.subtitle)}</p>
+          <p style="margin-top:14px;font-weight:700;font-size:0.9rem">✅ 已完成 ${done}/${c.lessons.length} 节 · 学习进度 ${Math.round(done / c.lessons.length * 100)}%</p>
+        </div>
+        <div class="lesson-list fade-in">
+          ${c.lessons.map((l, i) => `
+            <div class="lesson-row" data-id="${l.id}">
+              <div class="l-ic">${l.icon}</div>
+              <div style="flex:1;min-width:0">
+                <div class="l-t">${i + 1}. ${esc(l.title)}</div>
+                <div class="l-s">${esc(l.subtitle)} · 🧠 单词记忆 · ✍️ 语法练习 · 🎧 听力训练 · 🎙️ 口语跟读</div>
+              </div>
+              <div class="l-min">约 ${l.minutes} 分钟</div>
+              ${l.completed ? `<span class="l-score">最高 ${l.bestScore} 分 ✓</span>` : `<span class="btn-primary" style="padding:8px 16px;font-size:0.85rem">开始学习</span>`}
+            </div>`).join('')}
+        </div>
+      </div>`;
+    document.querySelectorAll('.lesson-row').forEach(r => r.onclick = () => location.hash = '#/lesson/' + r.dataset.id);
+    App.renderNav();
+  }
+
+  // ================= 学习进度 =================
+  on(/^\/progress$/, viewProgress);
+  async function viewProgress() {
+    $('#app').innerHTML = `<div id="nav-slot"></div><div class="page"><div class="boot-splash" style="min-height:40vh"><div class="spin"></div></div></div>`;
+    App.renderNav();
+    let data;
+    try { data = await get('/api/progress'); } catch (e) { return toast(e.message, 'error'); }
+    const { languages, daily, dailyGoal, achievements } = data;
+    const langMeta = { en: { flag: '🇬🇧', name: '英语', color: '#4F8CFF' }, ja: { flag: '🇯🇵', name: '日语', color: '#FF5D8F' }, ko: { flag: '🇰🇷', name: '韩语', color: '#12B886' } };
+    const skillName = { vocab: '单词', grammar: '语法', listening: '听力', speaking: '口语' };
+    const skillIcon = { vocab: '🧠', grammar: '✍️', listening: '🎧', speaking: '🎙️' };
+    const unlocked = achievements.filter(a => a.unlockedAt).length;
+
+    $('#app').innerHTML = `
+      <div id="nav-slot"></div>
+      <div class="page">
+        <div class="page-head fade-in">
+          <div>
+            <div class="page-title">📈 学习进度</div>
+            <div class="page-sub">每一次练习都在塑造更流利的你</div>
+          </div>
+          <div style="display:flex;gap:12px">
+            <span class="nav-stat">🔥 连续 ${data.streak} 天</span>
+            <span class="nav-stat xp">Lv.${data.level} · ${data.xp} XP</span>
+          </div>
+        </div>
+
+        <div class="progress-grid">
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <div class="card fade-in">
+              <h3 style="font-size:1.05rem;margin-bottom:10px">🔥 近 7 天学习热度（目标 ${dailyGoal} XP/天）</h3>
+              ${Charts.weekChart(daily, dailyGoal)}
+              <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:0.8rem;color:var(--muted)">
+                <span>本周合计 ${daily.reduce((s, x) => s + x.xp, 0)} XP</span>
+                <span>今日 ${data.todayXp} XP</span>
+              </div>
+            </div>
+
+            <div class="card fade-in">
+              <h3 style="font-size:1.05rem;margin-bottom:16px">🌍 各语种进度</h3>
+              ${Object.entries(languages).map(([code, st]) => `
+                <div class="lang-progress-row">
+                  <div class="lpr-flag">${langMeta[code].flag}</div>
+                  <div class="lpr-body">
+                    <div class="lpr-head"><span>${langMeta[code].name} · ${st.lessonsDone}/${st.lessonsTotal} 课时 · 🧠 ${st.words} 词</span>
+                      <span>${st.lessonsTotal ? Math.round(st.lessonsDone / st.lessonsTotal * 100) : 0}%</span></div>
+                    <div class="progress-bar ${st.lessonsDone >= st.lessonsTotal && st.lessonsTotal > 0 ? 'done' : ''}"><div style="width:${st.lessonsTotal ? st.lessonsDone / st.lessonsTotal * 100 : 0}%"></div></div>
+                  </div>
+                </div>`).join('')}
+            </div>
+
+            <div class="card fade-in">
+              <h3 style="font-size:1.05rem;margin-bottom:16px">💪 技能掌握度（${langMeta[Object.keys(languages).find(c => languages[c].lessonsDone > 0) || 'en'].name}）</h3>
+              <div class="skill-bars">
+                ${(() => {
+                  const code = Object.keys(languages).find(c => languages[c].lessonsDone > 0) || 'en';
+                  const st = languages[code];
+                  return Object.keys(skillName).map(k => Charts.skillBar(skillName[k], skillIcon[k], st.skills[k])).join('');
+                })()}
+              </div>
+              <p style="font-size:0.82rem;color:var(--muted);margin-top:12px">💡 技能均分来自该语种已完成课时的最佳成绩，90 分以上即达优秀线。</p>
+            </div>
+          </div>
+
+          <div class="card fade-in">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h3 style="font-size:1.05rem">🏆 成就徽章</h3>
+              <span style="font-size:0.85rem;color:var(--muted);font-weight:700">${unlocked}/${achievements.length}</span>
+            </div>
+            <div class="ach-grid">
+              ${achievements.map(a => `
+                <div class="ach-card ${a.unlockedAt ? 'unlocked' : ''}" title="${esc(a.desc)}">
+                  <div class="a-ic">${a.icon}</div>
+                  <div class="a-name">${a.name}</div>
+                  <div class="a-desc">${esc(a.desc)}</div>
+                  ${a.unlockedAt ? `<div class="a-date">🎉 ${new Date(a.unlockedAt).getMonth() + 1}月${new Date(a.unlockedAt).getDate()}日解锁</div>` : ''}
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>`;
+    App.renderNav();
+  }
+
+  // ================= 社区 =================
+  let communityFilter = '';
+  on(/^\/community$/, viewCommunity);
+  async function viewCommunity() {
+    $('#app').innerHTML = `<div id="nav-slot"></div><div class="page"><div class="boot-splash" style="min-height:40vh"><div class="spin"></div></div></div>`;
+    App.renderNav();
+    let data;
+    try { data = await get('/api/community' + (communityFilter ? '?lang=' + communityFilter : '')); } catch (e) { return toast(e.message, 'error'); }
+    const langs = [{ code: '', name: '全部' }, { code: 'en', flag: '🇬🇧', name: '英语' }, { code: 'ja', flag: '🇯🇵', name: '日语' }, { code: 'ko', flag: '🇰🇷', name: '韩语' }, { code: 'multi', flag: '🌏', name: '综合' }];
+
+    function postCard(p) {
+      return `<div class="post-card fade-in" data-id="${p.id}">
+        <div class="post-head">
+          <div class="post-avatar">${esc(p.author.avatar)}</div>
+          <div><div class="post-author">${esc(p.author.username)}</div><div class="post-time">${timeAgo(p.createdAt)}</div></div>
+          <span class="post-lang">${(langs.find(l => l.code === p.lang) || { flag: '🌏', name: '综合' }).flag} ${(langs.find(l => l.code === p.lang) || { name: '综合' }).name}</span>
+        </div>
+        <div class="post-title">${esc(p.title)}</div>
+        <div class="post-content">${esc(p.content)}</div>
+        <div class="post-actions">
+          <button class="act-like ${p.liked ? 'liked' : ''}">${p.liked ? '❤️' : '🤍'} <span class="like-n">${p.likes}</span> 点赞</button>
+          <button class="act-cmt">💬 <span>${p.comments.length}</span> 评论</button>
+        </div>
+        <div class="comments" style="display:none">
+          ${p.comments.map(c => `
+            <div class="comment"><div class="c-head"><b>${esc(c.author.username)}</b><span>${timeAgo(c.createdAt)}</span></div>
+            <div class="c-body">${esc(c.content)}</div></div>`).join('')}
+          <div class="comment-input">
+            <input placeholder="友善评论，一起进步…" maxlength="500" />
+            <button class="btn-primary" style="padding:9px 16px;font-size:0.85rem">发送</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    $('#app').innerHTML = `
+      <div id="nav-slot"></div>
+      <div class="page">
+        <div class="page-head fade-in">
+          <div>
+            <div class="page-title">💬 学习社区</div>
+            <div class="page-sub">分享方法 · 交流心得 · 找到志同道合的语伴</div>
+          </div>
+          <button class="btn-primary" id="btn-new-post">✏️ 发布帖子</button>
+        </div>
+        <div class="filter-chips fade-in">
+          ${langs.map(l => `<button class="chip ${communityFilter === l.code ? 'active' : ''}" data-lang="${l.code}">${l.flag || ''} ${l.name}</button>`).join('')}
+        </div>
+        <div class="community-grid">
+          <div id="post-list">${data.posts.length ? data.posts.map(postCard).join('') : `<div class="card empty"><div class="e-ic">🪶</div><p>还没有帖子，来发第一帖吧！</p></div>`}</div>
+          <div class="community-side">
+            <div class="side-card fade-in">
+              <h4>🏆 本周活跃之星</h4>
+              <div class="rank-row"><span class="rk">1</span>🐟 小鱼同学<span style="margin-left:auto;color:var(--muted);font-size:0.8rem">Lv.4</span></div>
+              <div class="rank-row"><span class="rk">2</span>🗾 东京速递员<span style="margin-left:auto;color:var(--muted);font-size:0.8rem">Lv.3</span></div>
+              <div class="rank-row"><span class="rk">3</span>🌧️ SeoulRain<span style="margin-left:auto;color:var(--muted);font-size:0.8rem">Lv.3</span></div>
+            </div>
+            <div class="side-card fade-in">
+              <h4>📌 社区公约</h4>
+              <p style="font-size:0.85rem;color:var(--muted);line-height:1.8">1. 友善交流，鼓励优先<br/>2. 多分享学习方法与打卡心得<br/>3. 禁止广告与无关内容</p>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    App.renderNav();
+
+    document.querySelectorAll('.chip').forEach(c => c.onclick = () => { communityFilter = c.dataset.lang; viewCommunity(); });
+    $('#btn-new-post').onclick = () => {
+      const m = modal(`<h3>✏️ 发布新帖</h3>
+        <div class="field"><label>语种</label>
+          <select id="np-lang"><option value="multi">🌏 综合</option><option value="en">🇬🇧 英语</option><option value="ja">🇯🇵 日语</option><option value="ko">🇰🇷 韩语</option></select></div>
+        <div class="field"><label>标题</label><input id="np-title" maxlength="60" placeholder="一句话说明主题" /></div>
+        <div class="field"><label>内容</label><textarea id="np-content" maxlength="2000" placeholder="分享你的学习方法、疑问或打卡心得…"></textarea></div>
+        <div class="form-error" id="np-err"></div>
+        <button class="btn-primary btn-block" id="np-submit">发布</button>`);
+      m.el.querySelector('#np-submit').onclick = async () => {
+        try {
+          const r = await post('/api/community', {
+            lang: m.el.querySelector('#np-lang').value,
+            title: m.el.querySelector('#np-title').value.trim(),
+            content: m.el.querySelector('#np-content').value.trim(),
+          });
+          m.close();
+          toast('发布成功！+ 获得成就 ' + (r.newAchievements.length ? r.newAchievements.map(a => a.name).join('、') : '继续保持'), 'success');
+          viewCommunity();
+        } catch (e) { m.el.querySelector('#np-err').textContent = e.message; }
+      };
+    };
+
+    document.querySelectorAll('.post-card').forEach(card => {
+      const id = card.dataset.id;
+      card.querySelector('.act-like').onclick = async e => {
+        e.stopPropagation();
+        try {
+          const r = await post(`/api/community/${id}/like`);
+          const btn = card.querySelector('.act-like');
+          btn.classList.toggle('liked', r.liked);
+          btn.innerHTML = `${r.liked ? '❤️' : '🤍'} <span class="like-n">${r.likes}</span> 点赞`;
+        } catch (err) { toast(err.message, 'error'); }
+      };
+      card.querySelector('.act-cmt').onclick = e => {
+        e.stopPropagation();
+        const box = card.querySelector('.comments');
+        box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+      };
+      const input = card.querySelector('.comment-input input');
+      const send = card.querySelector('.comment-input button');
+      const doSend = async () => {
+        const content = input.value.trim();
+        if (!content) return;
+        try {
+          const r = await post(`/api/community/${id}/comment`, { content });
+          const div = document.createElement('div');
+          div.className = 'comment';
+          div.innerHTML = `<div class="c-head"><b>${esc(r.comment.author.username)}</b><span>刚刚</span></div><div class="c-body">${esc(r.comment.content)}</div>`;
+          card.querySelector('.comments').insertBefore(div, card.querySelector('.comment-input'));
+          input.value = '';
+          card.querySelector('.act-cmt span').textContent = card.querySelectorAll('.comment').length;
+          toast('评论成功', 'success');
+        } catch (err) { toast(err.message, 'error'); }
+      };
+      send.onclick = e => { e.stopPropagation(); doSend(); };
+      input.onkeydown = e => { if (e.key === 'Enter') { e.stopPropagation(); doSend(); } };
+      input.onclick = e => e.stopPropagation();
+    });
+  }
+
+  // ================= 个人设置 =================
+  on(/^\/profile$/, viewProfile);
+  async function viewProfile() {
+    await App.loadMe();
+    const u = App.state.user;
+    if (!u) return location.hash = '#/login';
+    const avatars = ['🐣', '🦊', '🐼', '🦉', '🐳', '🦄', '🐝', '🐙', '🌸', '🚀', '🐟', '🗾'];
+    const p = App.state.progress || {};
+    $('#app').innerHTML = `
+      <div id="nav-slot"></div>
+      <div class="page" style="max-width:760px">
+        <div class="card fade-in">
+          <div class="profile-head">
+            <div class="profile-avatar">${esc(u.avatar)}</div>
+            <div>
+              <div class="profile-name">${esc(u.username)}</div>
+              <div class="profile-mail">${esc(u.email || '')}</div>
+              <div style="display:flex;gap:10px;margin-top:10px">
+                <span class="nav-stat xp">Lv.${p.level || 1} · ${p.xp || 0} XP</span>
+                <span class="nav-stat">🔥 ${p.streak || 0} 天</span>
+                <span class="nav-stat">🧠 ${p.wordsLearned || 0} 词</span>
+              </div>
+            </div>
+          </div>
+          <div class="settings-row">
+            <h4>选择头像</h4>
+            <div class="avatar-picker">${avatars.map(a => `<button data-a="${a}" class="${a === u.avatar ? 'sel' : ''}">${a}</button>`).join('')}</div>
+          </div>
+          <div class="settings-row">
+            <h4>昵称</h4>
+            <div class="field"><input id="pf-name" maxlength="20" value="${esc(u.username)}" /></div>
+          </div>
+          <div class="settings-row">
+            <h4>每日学习目标（XP）</h4>
+            <div class="goal-picker">${[30, 50, 100].map(g => `<button data-g="${g}" class="${g === u.dailyGoal ? 'sel' : ''}">${g} XP</button>`).join('')}</div>
+            <p style="font-size:0.83rem;color:var(--muted);margin-top:10px">完成一节课约可获得 30-60 XP，按自己的节奏设定目标。</p>
+          </div>
+          <button class="btn-primary btn-block" id="pf-save">保存设置</button>
+        </div>
+      </div>`;
+    App.renderNav();
+    let avatar = u.avatar, goal = u.dailyGoal;
+    document.querySelectorAll('.avatar-picker button').forEach(b => b.onclick = () => {
+      document.querySelectorAll('.avatar-picker button').forEach(x => x.classList.remove('sel'));
+      b.classList.add('sel'); avatar = b.dataset.a;
+    });
+    document.querySelectorAll('.goal-picker button').forEach(b => b.onclick = () => {
+      document.querySelectorAll('.goal-picker button').forEach(x => x.classList.remove('sel'));
+      b.classList.add('sel'); goal = Number(b.dataset.g);
+    });
+    $('#pf-save').onclick = async () => {
+      const btn = $('#pf-save');
+      btn.disabled = true; btn.textContent = '保存中…';
+      try {
+        await patch('/api/me', { avatar, dailyGoal: goal, username: $('#pf-name').value.trim() });
+        await App.loadMe();
+        toast('设置已保存', 'success');
+        btn.textContent = '✓ 已保存';
+        App.renderNav();
+        setTimeout(() => { btn.textContent = '保存设置'; btn.disabled = false; }, 2000);
+      } catch (e) {
+        toast(e.message, 'error');
+        btn.textContent = '保存设置'; btn.disabled = false;
+      }
+    };
+  }
+})();
+</script>
+  <script>/* LingoVerse 互动式课程播放器
+   流程：🧠 单词记忆 → ✍️ 语法练习 → 🎧 听力训练 → 🎙️ 口语跟读 → 🎉 完成 */
+(() => {
+  const { get, post } = API;
+  const { esc, toast, speak, $ } = App.utils;
+  const { on } = App;
+
+  const PHASES = [
+    { key: 'vocab', label: '🧠 单词', icon: '🧠' },
+    { key: 'grammar', label: '✍️ 语法', icon: '✍️' },
+    { key: 'listening', label: '🎧 听力', icon: '🎧' },
+    { key: 'speaking', label: '🎙️ 口语', icon: '🎙️' },
+  ];
+  const PHASE_NAME = { vocab: '单词记忆', grammar: '语法练习', listening: '听力训练', speaking: '口语跟读' };
+
+  const shuffle = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+  /* 相似度：归一化编辑距离 */
+  function similarity(a, b) {
+    const norm = s => String(s).toLowerCase().replace(/[.,!?;:'"（）()、。！？，～·「」…—-]/g, '').replace(/\s+/g, '');
+    a = norm(a); b = norm(b);
+    if (!a || !b) return 0;
+    if (a === b) return 1;
+    const m = a.length, n = b.length;
+    const dp = Array.from({ length: m + 1 }, (_, i) => [i, ...Array(n).fill(0)]);
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
+      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return 1 - dp[m][n] / Math.max(m, n);
+  }
+
+  let P = null; // 播放器状态
+
+  on(/^\/lesson\/([\w-]+)$/, viewLesson);
+  async function viewLesson(id) {
+    if (!App.state.user) return location.hash = '#/login';
+    $('#app').innerHTML = `<div id="nav-slot"></div><div class="page"><div class="boot-splash" style="min-height:50vh"><div class="spin"></div></div></div>`;
+    App.renderNav();
+    let data;
+    try { data = await get('/api/lessons/' + id); } catch (e) { toast(e.message, 'error'); return location.hash = '#/courses'; }
+    P = {
+      lesson: data.lesson, langMeta: data.langMeta, prev: data.prev, next: data.next, best: data.best,
+      phase: 'vocab', scores: { vocab: [], grammar: [], listening: [], speaking: [] },
+      vocab: { step: 0, mode: 'cards', quiz: [], quizStep: 0, sel: null },
+      grammar: { step: 0, sel: null, answered: false },
+      listening: { step: 0, sel: null, revealed: false },
+      speaking: { step: 0, heard: '', recognized: false },
+    };
+    renderShell();
+  }
+
+  function renderShell() {
+    const L = P.lesson;
+    const chips = PHASES.map((p, i) => {
+      const order = ['vocab', 'grammar', 'listening', 'speaking'];
+      const idx = order.indexOf(P.phase);
+      return `<div class="phase-chip ${P.phase === p.key ? 'active' : idx > i ? 'done' : ''}">${p.label}</div>`;
+    }).join('');
+    $('#app').innerHTML = `
+      <div id="nav-slot"></div>
+      <div class="page player-wrap">
+        <div class="player-top fade-in">
+          <a class="back" href="#/courses" title="退出课时">←</a>
+          <div class="player-title">
+            <div class="pt1">${L.icon} ${esc(L.title)}</div>
+            <div class="pt2">${P.langMeta.flag} ${esc(P.lesson.courseTitle)}${P.best ? ` · 上次成绩：${Object.values(P.best).reduce((a, b) => a + b, 0) / 4}分` : ''}</div>
+          </div>
+          <span class="nav-stat">${P.langMeta.flag} ${esc(P.langMeta.name)}</span>
+        </div>
+        <div class="phase-bar fade-in">${chips}</div>
+        <div id="phase-mount"></div>
+      </div>`;
+    App.renderNav();
+    if (P.phase !== 'done') {
+      ({ vocab: renderVocab, grammar: renderGrammar, listening: renderListening, speaking: renderSpeaking }[P.phase])();
+    }
+  }
+
+  const mount = html => { $('#phase-mount').innerHTML = `<div class="phase-card fade-in">${html}</div>`; };
+  const foot = (progressPct, nextLabel, onNext, extraLeft = '') => `
+    <div class="phase-foot">
+      ${extraLeft}
+      <div class="phase-progress"><div style="width:${progressPct}%"></div></div>
+      <button class="btn-next" id="phase-next" ${onNext ? '' : 'disabled'}>${nextLabel}</button>
+    </div>`;
+
+  /* ================= 阶段一：单词记忆 ================= */
+  function renderVocab() {
+    const V = P.vocab, words = P.lesson.vocab;
+    if (V.mode === 'cards') {
+      const w = words[V.step];
+      mount(`
+        <div class="phase-head"><span class="phase-tag">🧠 单词记忆</span><span class="phase-count">${V.step + 1} / ${words.length}</span></div>
+        <div class="phase-title">点击卡片翻面，先混个脸熟</div>
+        <div class="phase-body">
+          <div class="flashcard" id="fc">
+            <div class="fc-inner">
+              <div class="fc-face fc-front">
+                <div class="term">${esc(w.t)}</div>
+                ${w.r ? `<div class="reading">/${esc(w.r)}/</div>` : ''}
+                <button class="speaker-btn" id="fc-speak" title="听发音">🔊</button>
+              </div>
+              <div class="fc-face fc-back">
+                <div class="trans">${esc(w.z)}</div>
+                <div class="example">${esc(w.ex)}<br/><span style="font-size:.85em;opacity:.75">${esc(w.ext)}</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="fc-hint">👆 点击卡片查看释义与例句</div>
+        </div>
+        ${foot(((V.step + 1) / words.length * 100).toFixed(0), V.step === words.length - 1 ? '进入小测验 ✓' : '下一个 →', true)}
+      `);
+      const fc = $('#fc');
+      fc.onclick = e => { if (e.target.id !== 'fc-speak') fc.classList.toggle('flipped'); };
+      $('#fc-speak').onclick = () => speak(w.t, P.langMeta.speech);
+      $('#phase-next').onclick = () => {
+        if (V.step < words.length - 1) { V.step++; renderVocab(); }
+        else {
+          V.quiz = shuffle(words.map(w => ({ term: w.t, z: w.z, opts: shuffle([w.z, ...shuffle(words.filter(x => x.z !== w.z).map(x => x.z)).slice(0, 3)]) })));
+          V.mode = 'quiz'; V.quizStep = 0; renderVocab();
+        }
+      };
+    } else {
+      // 单词小测验
+      const q = V.quiz[V.quizStep];
+      const opts = q.opts;
+      mount(`
+        <div class="phase-head"><span class="phase-tag">🧠 单词小测验</span><span class="phase-count">${V.quizStep + 1} / ${V.quiz.length}</span></div>
+        <div class="phase-body">
+          <div class="quiz-q">「<b style="font-size:1.3em">${esc(q.term)}</b>」的意思是？</div>
+          <div class="quiz-opts">
+            ${opts.map((o, i) => {
+              let cls = '';
+              if (V.sel !== null) {
+                if (o === q.z) cls = 'right';
+                else if (i === V.sel) cls = 'wrong';
+              }
+              return `<button class="quiz-opt ${cls}" data-i="${i}" ${V.sel !== null ? 'disabled' : ''}><span class="key">${'ABCD'[i]}</span>${esc(o)}</button>`;
+            }).join('')}
+          </div>
+        </div>
+        ${foot(((V.quizStep + (V.sel !== null ? 1 : 0)) / V.quiz.length * 100).toFixed(0), V.sel === null ? '' : (V.quizStep === V.quiz.length - 1 ? '下一环节 🎧' : '下一题 →'), V.sel !== null)}
+      `);
+      document.querySelectorAll('.quiz-opt').forEach(b => b.onclick = () => {
+        if (V.sel !== null) return;
+        V.sel = Number(b.dataset.i);
+        P.scores.vocab.push(opts[V.sel] === q.z ? 100 : 0);
+        document.querySelectorAll('.quiz-opt').forEach((x, i) => {
+          if (opts[i] === q.z) x.classList.add('right');
+          else if (i === V.sel) x.classList.add('wrong');
+          x.disabled = true;
+        });
+        $('#phase-next').onclick = () => {
+          if (V.quizStep < V.quiz.length - 1) { V.quizStep++; V.sel = null; renderVocab(); }
+          else { P.phase = 'grammar'; renderShell(); }
+        };
+        // 更新进度条与按钮状态
+        $('.phase-progress > div').style.width = ((V.quizStep + 1) / V.quiz.length * 100) + '%';
+        const btn = $('#phase-next');
+        btn.disabled = false;
+        btn.textContent = V.quizStep === V.quiz.length - 1 ? '下一环节 🎧' : '下一题 →';
+      });
+    }
+  }
+
+  /* ================= 阶段二：语法练习 ================= */
+  function renderGrammar() {
+    const G = P.grammar, exs = P.lesson.grammar.exs;
+    const q = exs[G.step];
+    mount(`
+      <div class="phase-head"><span class="phase-tag">✍️ 语法练习</span><span class="phase-count">${G.step + 1} / ${exs.length}</span></div>
+      <div class="phase-title">📋 ${esc(P.lesson.grammar.t)}</div>
+      <div class="phase-body">
+        <div class="quiz-q">${esc(q.q)}</div>
+        <div class="quiz-opts">
+          ${q.o.map((o, i) => {
+            let cls = '';
+            if (G.answered) { if (i === q.a) cls = 'right'; else if (i === G.sel) cls = 'wrong'; }
+            else if (i === G.sel) cls = 'sel';
+            return `<button class="quiz-opt ${cls}" data-i="${i}"><span class="key">${'ABCD'[i]}</span>${esc(o)}</button>`;
+          }).join('')}
+        </div>
+        <div id="grammar-tip"></div>
+      </div>
+      ${foot(((G.step + (G.answered ? 1 : 0)) / exs.length * 100).toFixed(0), G.answered ? (G.step === exs.length - 1 ? '下一环节 🎙️' : '下一题 →') : '', G.answered, `<a class="btn-ghost" id="btn-rule" style="padding:10px 16px;font-size:0.85rem">📖 语法讲解</a>`)}
+    `);
+    $('#btn-rule').onclick = () => {
+      App.modal(`<h3>📖 ${esc(P.lesson.grammar.t)}</h3><div style="white-space:pre-wrap;line-height:2;color:#454A63;font-size:0.95rem">${esc(P.lesson.grammar.exp)}</div>`);
+    };
+    document.querySelectorAll('.quiz-opt').forEach(b => b.onclick = () => {
+      if (G.answered) return;
+      G.sel = Number(b.dataset.i); G.answered = true;
+      P.scores.grammar.push(G.sel === q.a ? 100 : 0);
+      document.querySelectorAll('.quiz-opt').forEach((x, i) => {
+        if (i === q.a) x.classList.add('right');
+        else if (i === G.sel) x.classList.add('wrong');
+        x.disabled = true;
+      });
+      if (G.sel !== q.a) $('#grammar-tip').innerHTML = `<div class="quiz-tip">💡 ${esc(q.tip)}</div>`;
+      else $('#grammar-tip').innerHTML = `<div class="quiz-tip" style="background:#F0FBF6;color:#187953">🎉 回答正确！${esc(q.tip)}</div>`;
+      $('.phase-progress > div').style.width = ((G.step + 1) / exs.length * 100) + '%';
+      const btn = $('#phase-next');
+      btn.disabled = false;
+      btn.textContent = G.step === exs.length - 1 ? '下一环节 🎙️' : '下一题 →';
+    });
+    $('#phase-next').onclick = () => {
+      if (!G.answered) return;
+      if (G.step < exs.length - 1) { G.step++; G.sel = null; G.answered = false; renderGrammar(); }
+      else { P.phase = 'listening'; renderShell(); }
+    };
+  }
+
+  /* ================= 阶段三：听力训练 ================= */
+  function renderListening() {
+    const LI = P.listening, items = P.lesson.listening;
+    const item = items[LI.step];
+    const isType = item.m === 'type';
+    // 选择题选项：正确句 + 同课时其他句
+    const opts = isType ? [] : shuffle([item.s, ...shuffle(items.filter(x => x.s !== item.s).map(x => x.s)).slice(0, 2)]);
+    mount(`
+      <div class="phase-head"><span class="phase-tag">🎧 听力训练</span><span class="phase-count">${LI.step + 1} / ${items.length}</span></div>
+      <div class="phase-title">${isType ? '听到什么就写什么' : '选出你听到的句子'}</div>
+      <div class="phase-body">
+        <div class="listen-box">
+          <button class="listen-sphere" id="btn-play">🔊</button>
+          <div class="listen-hint">点击播放 · 可反复收听（${P.langMeta.nativeName}原声朗读）</div>
+          ${isType ? `
+            <input class="type-input" id="listen-input" placeholder="输入你听到的句子…" autocomplete="off" ${LI.revealed ? 'disabled' : ''} />
+            <div class="self-rate">
+              <button id="listen-check" ${LI.revealed ? 'disabled' : ''}>提交答案</button>
+              <button id="listen-reveal" ${LI.revealed ? 'disabled' : ''}>看答案（此题 0 分）</button>
+            </div>
+          ` : `
+            <div class="quiz-opts" style="width:100%">
+              ${opts.map((o, i) => {
+                let cls = '';
+                if (LI.sel !== null) { if (o === item.s) cls = 'right'; else if (i === LI.sel) cls = 'wrong'; }
+                return `<button class="quiz-opt ${cls}" data-i="${i}" ${LI.sel !== null ? 'disabled' : ''}><span class="key">${'ABC'[i]}</span>${esc(o)}</button>`;
+              }).join('')}
+            </div>
+          `}
+        </div>
+        <div id="listen-result"></div>
+      </div>
+      ${foot(((LI.step + (LI.sel !== null || LI.revealed ? 1 : 0)) / items.length * 100).toFixed(0),
+        LI.step === items.length - 1 ? '查看成绩 🎉' : '下一题 →', LI.sel !== null || LI.revealed)}
+    `);
+    const btnPlay = $('#btn-play');
+    const play = () => { speak(item.s, P.langMeta.speech); btnPlay.classList.add('playing'); setTimeout(() => btnPlay.classList.remove('playing'), 1800); };
+    btnPlay.onclick = play;
+    setTimeout(play, 350);
+
+    const advance = () => {
+      if (LI.step < items.length - 1) { LI.step++; LI.sel = null; LI.revealed = false; renderListening(); }
+      else { P.phase = 'speaking'; renderShell(); }
+    };
+
+    if (isType) {
+      $('#listen-check').onclick = () => {
+        const val = $('#listen-input').value.trim();
+        if (!val) return toast('先听一听，再写下你听到的内容', 'error');
+        const sim = similarity(val, item.s);
+        P.scores.listening.push(sim >= 0.92 ? 100 : Math.round(sim * 100));
+        LI.revealed = true;
+        $('#listen-result').innerHTML = `
+          <div class="reveal-sent">🗣️ ${esc(item.s)}</div>
+          <div class="reveal-zh">${esc(item.z)} · 相似度 ${Math.round(sim * 100)}%</div>`;
+        $('.phase-progress > div').style.width = ((LI.step + 1) / items.length * 100) + '%';
+        $('#phase-next').disabled = false;
+        $('#phase-next').textContent = LI.step === items.length - 1 ? '查看成绩 🎉' : '下一题 →';
+      };
+      $('#listen-reveal').onclick = () => {
+        P.scores.listening.push(0);
+        LI.revealed = true;
+        $('#listen-result').innerHTML = `<div class="reveal-sent">🗣️ ${esc(item.s)}</div><div class="reveal-zh">${esc(item.z)}</div>`;
+        $('.phase-progress > div').style.width = ((LI.step + 1) / items.length * 100) + '%';
+        $('#phase-next').disabled = false;
+        $('#phase-next').textContent = LI.step === items.length - 1 ? '查看成绩 🎉' : '下一题 →';
+      };
+      $('#listen-input').onkeydown = e => { if (e.key === 'Enter') $('#listen-check').click(); };
+    } else {
+      document.querySelectorAll('.quiz-opt').forEach(b => b.onclick = () => {
+        if (LI.sel !== null) return;
+        LI.sel = Number(b.dataset.i);
+        const right = opts[LI.sel] === item.s;
+        P.scores.listening.push(right ? 100 : 0);
+        document.querySelectorAll('.quiz-opt').forEach((x, i) => {
+          if (opts[i] === item.s) x.classList.add('right');
+          else if (i === LI.sel) x.classList.add('wrong');
+          x.disabled = true;
+        });
+        $('#listen-result').innerHTML = `<div class="reveal-zh" style="font-size:1rem;color:${right ? '#187953' : '#B2453F'};font-weight:700">${right ? '🎉 听对了！' : '再接再厉！'} ${esc(item.z)}</div>`;
+        $('.phase-progress > div').style.width = ((LI.step + 1) / items.length * 100) + '%';
+        $('#phase-next').disabled = false;
+        $('#phase-next').textContent = LI.step === items.length - 1 ? '查看成绩 🎉' : '下一题 →';
+      });
+    }
+    $('#phase-next').onclick = () => { if (LI.sel !== null || LI.revealed) advance(); };
+  }
+
+  /* ================= 阶段四：口语跟读 ================= */
+  function renderSpeaking() {
+    const SP = P.speaking, items = P.lesson.speaking;
+    const item = items[SP.step];
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    mount(`
+      <div class="phase-head"><span class="phase-tag">🎙️ 口语跟读</span><span class="phase-count">${SP.step + 1} / ${items.length}</span></div>
+      <div class="phase-title">大声读出来，AI 帮你打分</div>
+      <div class="phase-body">
+        <div class="speak-target">
+          <div class="st-main">🗣️ ${esc(item.s)}</div>
+          <div class="st-zh">${esc(item.z)}</div>
+          <div class="st-hint">💡 ${esc(item.h)}</div>
+          <div style="margin-top:14px"><button class="speaker-btn dark" id="speak-demo" title="听标准发音">🔊</button></div>
+        </div>
+        <div class="speak-actions">
+          ${SR ? `<button class="btn-mic" id="btn-mic">🎤 按住说话开始跟读</button>` : ''}
+        </div>
+        <div class="mic-status" id="mic-status">${SR ? '点击麦克风，朗读上方句子' : '当前浏览器不支持语音识别（建议 Chrome）'}</div>
+        <div class="mic-heard" id="mic-heard"></div>
+        <div class="self-rate">
+          <span style="color:var(--muted);font-size:0.82rem;align-self:center">无法使用麦克风？自评：</span>
+          <button data-s="95">😄 很流利（95）</button>
+          <button data-s="80">🙂 有小错（80）</button>
+          <button data-s="60">😅 有点难（60）</button>
+        </div>
+      </div>
+      ${foot(((SP.step + (SP.recognized ? 1 : 0)) / items.length * 100).toFixed(0), SP.step === items.length - 1 ? '完成课时 🎉' : '下一句 →', SP.recognized)}
+    `);
+    $('#speak-demo').onclick = () => speak(item.s, P.langMeta.speech);
+    setTimeout(() => speak(item.s, P.langMeta.speech), 400);
+
+    const advance = () => {
+      if (SP.step < items.length - 1) { SP.step++; SP.heard = ''; SP.recognized = false; renderSpeaking(); }
+      else finishLesson();
+    };
+
+    document.querySelectorAll('.self-rate button[data-s]').forEach(b => b.onclick = () => {
+      if (SP.recognized) return;
+      P.scores.speaking.push(Number(b.dataset.s));
+      SP.recognized = true;
+      $('#mic-status').textContent = `自评 ${b.dataset.s} 分，练习重在坚持！`;
+      $('#mic-heard').textContent = '';
+      $('#phase-next').disabled = false;
+      $('#phase-next').textContent = SP.step === items.length - 1 ? '完成课时 🎉' : '下一句 →';
+      $('.phase-progress > div').style.width = ((SP.step + 1) / items.length * 100) + '%';
+    });
+
+    if (SR) {
+      const btnMic = $('#btn-mic');
+      let rec = null;
+      btnMic.onclick = () => {
+        if (SP.recognized) return;
+        try { rec = new SR(); } catch (e) { return toast('语音识别初始化失败，请用自评', 'error'); }
+        rec.lang = P.langMeta.speech;
+        rec.interimResults = false;
+        rec.maxAlternatives = 1;
+        $('#mic-status').textContent = '🎙️ 正在聆听，请朗读…';
+        btnMic.classList.add('rec');
+        let got = false;
+        rec.onresult = e => {
+          got = true;
+          const said = e.results[0][0].transcript;
+          SP.heard = said;
+          const sim = similarity(said, item.s);
+          const score = Math.round(sim * 100);
+          P.scores.speaking.push(score);
+          SP.recognized = true;
+          $('#mic-heard').innerHTML = `🎧 我听到：${esc(said)}<br/><span style="color:${score >= 80 ? '#23B37D' : '#FF9F43'}">相似度 ${score}%</span>`;
+          $('#mic-status').textContent = score >= 85 ? '发音很棒，几乎和原句一样！' : score >= 60 ? '不错的尝试！注意对比标准发音' : '再听一遍标准音，慢慢来';
+          btnMic.classList.remove('rec');
+          $('#phase-next').disabled = false;
+          $('#phase-next').textContent = SP.step === items.length - 1 ? '完成课时 🎉' : '下一句 →';
+          $('.phase-progress > div').style.width = ((SP.step + 1) / items.length * 100) + '%';
+        };
+        rec.onerror = e => {
+          btnMic.classList.remove('rec');
+          $('#mic-status').textContent = e.error === 'not-allowed'
+            ? '麦克风权限被拒绝，可以在浏览器设置中开启，或使用下方自评'
+            : '没有听清（' + e.error + '），再试一次或使用自评';
+        };
+        rec.onend = () => {
+          btnMic.classList.remove('rec');
+          if (!got && !SP.recognized) $('#mic-status').textContent = '未捕捉到语音，再试一次或使用自评';
+        };
+        rec.start();
+      };
+    }
+    $('#phase-next').onclick = () => { if (SP.recognized) advance(); };
+  }
+
+  /* ================= 完成 ================= */
+  async function finishLesson() {
+    const avg = k => P.scores[k].length ? Math.round(P.scores[k].reduce((a, b) => a + b, 0) / P.scores[k].length) : 0;
+    const scores = { vocab: avg('vocab'), grammar: avg('grammar'), listening: avg('listening'), speaking: avg('speaking') };
+    P.phase = 'done';
+    renderShell();
+    const mountEl = $('#phase-mount');
+    if (!mountEl) return;
+    mountEl.innerHTML = `<div class="phase-card fade-in"><div class="boot-splash" style="min-height:200px"><div class="spin"></div></div></div>`;
+    let result;
+    try {
+      result = await post(`/api/lessons/${P.lesson.id}/complete`, { scores });
+      await App.loadMe();
+    } catch (e) {
+      return toast(e.message, 'error');
+    }
+    if (!document.body.contains($('#phase-mount'))) return; // 用户已离开页面
+    App.renderNav();
+    const avgScore = Math.round((scores.vocab + scores.grammar + scores.listening + scores.speaking) / 4);
+    $('#phase-mount').innerHTML = `
+      <div class="phase-card fade-in">
+        <div class="done-hero">
+          <div class="dh-ic">${avgScore >= 90 ? '🏆' : avgScore >= 70 ? '🎉' : '💪'}</div>
+          <h2>${avgScore >= 90 ? '表现太出色了！' : avgScore >= 70 ? '课时完成，干得漂亮！' : '完成！多练一次会更棒'}</h2>
+          <p>${esc(P.lesson.title)} · ${esc(P.langMeta.name)} · 综合得分 ${avgScore} 分</p>
+        </div>
+        <div class="score-rings">
+          ${Charts.scoreRing(scores.vocab, '🧠', '单词')}
+          ${Charts.scoreRing(scores.grammar, '✍️', '语法')}
+          ${Charts.scoreRing(scores.listening, '🎧', '听力')}
+          ${Charts.scoreRing(scores.speaking, '🎙️', '口语')}
+        </div>
+        <div class="xp-banner">⚡ 获得 ${result.xpGained} XP · 当前等级 Lv.${result.level}${result.firstTime ? ' · 新单词 +1 🧠' : ''}</div>
+        ${result.newAchievements.map(a => `
+          <div class="ach-pop"><div class="ap-ic">${a.icon}</div><div><div class="ap-t">解锁成就「${a.name}」</div><div class="ap-d">${esc(a.desc)}</div></div></div>`).join('')}
+        <div style="display:flex;gap:12px;margin-top:22px">
+          ${P.next ? `<button class="btn-primary" style="flex:1;padding:13px" id="done-next">继续下一课 →</button>` : ''}
+          <button class="btn-ghost" style="flex:1" id="done-back">返回课程</button>
+          <button class="btn-ghost" style="flex:1" id="done-again">再练一次</button>
+        </div>
+      </div>`;
+    if (P.next) $('#done-next').onclick = () => viewLesson(P.next);
+    $('#done-back').onclick = () => location.hash = '#/courses';
+    $('#done-again').onclick = () => viewLesson(P.lesson.id);
+    if (result.newAchievements.length) toast('🏆 解锁新成就：' + result.newAchievements.map(a => a.name).join('、'), 'success');
+  }
+})();
+</script>
+</body>
+</html>
